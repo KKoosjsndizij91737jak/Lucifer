@@ -234,8 +234,8 @@ setting.writeFile = function(info,text)
 end
 
 setting.switchup = function()
-    if botBackup then
-        if indexbot == 1 then
+    if indexbot == 1 then
+        if botBackup then
             for i = 1, #backupList do
                 thread = setting.split(backupList[i],"([^"..symbol.."]+)")[1]
                 threading = setting.split(backupList[i],"([^"..symbol.."]+)")[2]
@@ -250,11 +250,11 @@ setting.switchup = function()
                 end
             end
         end
-    end
-    if proxy then
-        for _, list in ipairs(proxyList) do
-            addProxy(list)
-            getProxyManager():setLimit(proxyPerBot)
+        if proxy then
+            for _, list in ipairs(proxyList) do
+                addProxy(list)
+                getProxyManager():setLimit(proxyPerBot)
+            end
         end
     end
 end
