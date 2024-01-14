@@ -9,7 +9,6 @@ end
 getBot().auto_reconnect = false
 getBot().legit_mode = false
 tilebreak = {}
-tileDirt = {}
 infoid = {}
 worlds = {}
 sjam = {}
@@ -151,25 +150,6 @@ setting.ident = function(x,y)
     getBot():findPath(x,y)
 end
 
-intent = 5
-for i = math.floor(intent/2),1,-1 do
-    i = i * -1
-    table.insert(tileDirt,i)
-end
-
-for i = 0, math.ceil(intent/2) - 1 do
-    table.insert(tileDirt,i)
-end
-
-setting.punchdirt = function(x,y)
-    for _,num in pairs(tileDirt) do
-        if getTile(x + 1,y + num).bg ~= 0 then
-            return true
-        end
-    end
-    return false
-end
-
 setting.punchitem = function(x,y)
     for _,tilepunch in pairs(tilebreak) do
         if getTile(x + tilepunch,y + tileY).fg ~= 0 or getTile(x + tilepunch,y + tileY).bg ~= 0 then
@@ -220,67 +200,6 @@ setting.switchup = function()
                 addProxy(list)
                 getProxyManager():setLimit(proxyPerBot)
             end
-        end
-    end
-end
-
-setting.dirt27 = function()
-    botX = getBot().x
-    botY = getBot().y
-    find = getBot():getWorld().name
-    while setting.punchdirt(botX,botY) do
-        for _,i in pairs(tileDirt) do
-            if getTile(botX + 1,botY + i).bg ~= 0 then
-                setting.idx(1,i)
-                sleep(delaypunch)
-                setting.reconnect(find,"",botX,botY)
-            end
-        end
-    end
-end
-
-setting.indexdirt = function()
-    botX = getBot().x
-    botY = getBot().y
-    find = getBot():getWorld().name
-    for w = 1,34 do
-        if getTile(1,w).bg == 14 or getTile(1,w).fg == 2 or getTile(1,w).bg == 14 or getTile(1,w).fg == 2 then
-            while getTile(1,w).bg == 14 or getTile(1,w).fg == 2 do
-                setting.ident(1,w-1)
-                setting.idx(0,1)
-                sleep(delaypunch)
-                setting.reconnect(find,"",botX,botY)
-            end
-            while getTile(0,w).bg == 14 or getTile(0,w).fg == 2 do
-                setting.idx(-1,1)
-                sleep(delaypunch)
-                setting.reconnect(find,"",botX,botY)
-            end
-            if getBot().level >= 5 then
-                break
-            end
-        end
-    end
-    for x = 2, 98 do
-        if getTile(x, 27).bg == 14 and getTile(x, 27).fg ~= 0 then
-            setting.ident(x - 1, 27)
-            sleep(100)
-            setting.reconnect(find,"",botX,botY)
-            setting.dirt27()
-            if getBot().level >= 5 then
-                break
-            end
-        end
-    end
-    for x = 2, 98 do
-        if getTile(x, 32).bg == 14 and getTile(x, 32).fg ~= 0 then
-            setting.ident(x - 1, 32)
-            sleep(100)
-            setting.reconnect(find,"",botX,botY)
-            setting.dirt27()
-        end
-        if getBot().level >= 5 then
-            break
         end
     end
 end
@@ -1490,9 +1409,6 @@ end
 
 setting.rechecking = function(threads)
     print("["..indexbot.."]Rechecking")
-    if ignoregems then
-        getBot().ignore_gems = true
-    end
     ::BACK::
     for _, tile in pairs(getBot():getWorld():getTiles()) do
         if tile.fg == seed and tile:canHarvest() then
@@ -1630,21 +1546,18 @@ setting.rechecking = function(threads)
                 break
             end
         end
-        if setting.num(seed) >= amountseed then
-            setting.storingseeds(threads)
-            print("["..indexbot.."]Rechecking")
-            setting.joiningWorld(threads,doorfarm)
-            setting.webhookinfo()
-            setting.wordsrandom()
-        end
+    end
+    if setting.num(seed) >= amountseed then
+        setting.storingseeds(threads)
+        print("["..indexbot.."]Rechecking")
+        setting.joiningWorld(threads,doorfarm)
+        setting.webhookinfo()
+        setting.wordsrandom()
     end
 end
 
 setting.levelingcek = function(params)
     print("["..indexbot.."]Rechecking")
-    if ignoregems then
-        getBot().ignore_gems = true
-    end
     ::BACK::
     for _, obj in pairs(getBot():getWorld():getObjects()) do
         if obj.id == idblockleveling then
@@ -1710,35 +1623,14 @@ setting.levelingcek = function(params)
 end
 
 setting.harvest = function(threads)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
     print("["..indexbot.."]Harvesting")
-    if ignoregems then
-        getBot().ignore_gems = true
-    end
     ::BACK::
-    for _, tile in pairs(getBot():getWorld():getTiles()) do
-        if getTile(99,53).fg == seed and getTile(99,53):canHarvest() then
-            setting.ident(99,53)
-            setting.reconnect(threads,doorfarm,99,53)
-            while getTile(99,53):canHarvest() do
-                setting.idx(0,0)
-                sleep(delayharvest)
-                setting.reconnect(threads,doorfarm,99,53)
-            end
-        end
-        if tile.fg == 6 then
-            if getTile(tile.x-2,tile.y).fg == seed and getTile(tile.x-2,tile.y):canHarvest() then
-                setting.ident(tile.x-2,tile.y)
-                setting.reconnect(threads,doorfarm,tile.x,tile.y)
-                while getTile(getBot().x,getBot().y):canHarvest() do
-                    setting.idx(0,0)
-                    sleep(delayharvest)
-                    setting.reconnect(threads,doorfarm,tile.x,tile.y)
-                end
-            end
-        end
-    end
-    for y = 0, 53, 1 do
-        for x = 0, 99, 1 do
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
             if getTile(x,y).fg == seed and getTile(x,y):canHarvest() then
                 if setting.num(block) > 180 then
                     if pnbother then
@@ -1792,66 +1684,47 @@ setting.harvest = function(threads)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 end
-                setting.ident(x+1,y)
-                setting.reconnect(threads,doorfarm,x+1,y)
-                if getTile(getBot().x-1,getBot().y).fg == seed then
-                    setting.idx(-1,0)
-                    sleep(delayharvest)
-                    setting.reconnect(threads,doorfarm,x+1,y)
-                end
+                setting.ident(x,y)
                 sleep(delayharvest)
+                setting.reconnect(threads,doorfarm,x,y)
                 if getTile(getBot().x,getBot().y).fg == seed then
                     setting.idx(0,0)
                     sleep(delayharvest)
-                    setting.reconnect(threads,doorfarm,x+1,y)
+                    setting.reconnect(threads,doorfarm,x,y)
                 end
-                sleep(delayharvest)
-                if getTile(getBot().x+1,getBot().y).fg == seed then
-                    setting.idx(1,0)
-                    sleep(delayharvest)
-                    setting.reconnect(threads,doorfarm,x+1,y)
-                end
-                if not ignoregems then
-                    getBot():collect(range)
-                end
+                getBot():collect(range)
                 sleep(30)
             end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
         end
     end
 end
 
 setting.levelings = function(params)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
     print("["..indexbot.."]Levelings")
-    if ignoregems then
-        getBot().ignore_gems = true
-    end
     ::BACK::
-    for _, tile in pairs(getBot():getWorld():getTiles()) do
-        if getTile(99,53).fg == idblockleveling+1 and getTile(99,53):canHarvest() then
-            setting.ident(99,53)
-            setting.reconnect(params,doorworldleveling,99,53)
-            while getTile(99,53):canHarvest() do
-                setting.idx(0,0)
-                sleep(delayharvest)
-                setting.reconnect(params,doorworldleveling,99,53)
-            end
-        end
-        if tile.fg == 6 then
-            if getTile(tile.x-2,tile.y).fg == idblockleveling+1 and getTile(tile.x-2,tile.y):canHarvest() then
-                setting.ident(tile.x-2,tile.y)
-                setting.reconnect(params,doorworldleveling,tile.x,tile.y)
-                while getTile(getBot().x,getBot().y):canHarvest() do
-                    setting.idx(0,0)
-                    sleep(delayharvest)
-                    setting.reconnect(params,doorworldleveling,tile.x,tile.y)
-                end
-            end
-        end
-    end
-    for y = 0, 53, 1 do
-        for x = 0, 99, 1 do
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
             if getTile(x,y).fg == idblockleveling+1 and getTile(x,y):canHarvest() then
-                if getBot().level >= setminlvl then
+                if getBot().level >= setmaxlvl then
                     break
                 end
                 if setting.num(idblockleveling) > 180 then
@@ -1878,85 +1751,78 @@ setting.levelings = function(params)
                     setting.wordsrandom()
                     goto BACK
                 end
-                setting.ident(x+1,y)
-                setting.reconnect(params,doorworldleveling,x+1,y)
-                if getTile(getBot().x-1,getBot().y).fg == idblockleveling+1 then
-                    setting.idx(-1,0)
-                    sleep(delayharvest)
-                    setting.reconnect(params,doorworldleveling,x+1,y)
-                end
+                setting.ident(x,y)
                 sleep(delayharvest)
+                setting.reconnect(params,doorworldleveling,x,y)
                 if getTile(getBot().x,getBot().y).fg == idblockleveling+1 then
                     setting.idx(0,0)
                     sleep(delayharvest)
-                    setting.reconnect(params,doorworldleveling,x+1,y)
+                    setting.reconnect(params,doorworldleveling,x,y)
                 end
-                sleep(delayharvest)
-                if getTile(getBot().x+1,getBot().y).fg == idblockleveling+1 then
-                    setting.idx(1,0)
-                    sleep(delayharvest)
-                    setting.reconnect(params,doorworldleveling,x+1,y)
-                end
-                if not ignoregems then
+                if leveling then
+                    if getBot().level >= setminlvl then
+                        getBot():collect(range)
+                    end
+                else
                     getBot():collect(range)
                 end
                 sleep(30)
             end
         end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
+        end
     end
 end
 
 setting.plant = function(info,static,seedid)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
     print("["..indexbot.."]Planting")
-    for _, tile in pairs(getBot():getWorld():getTiles()) do
-        if getTile(99,53).fg == 0 and getTile(99, 53).flags ~= 0 then
-            setting.ident(99,53)
-            setting.reconnect(info,static,99,53)
-            while getTile(99,53).fg ~= seedid do
-                setting.dec(seedid,0,0)
-                sleep(delayplant)
-                setting.reconnect(info,static,99,53)
-            end
-        end
-        if tile.fg == 6 then
-            if getTile(tile.x-2,tile.y).fg == 0 and getTile(tile.x-2,tile.y).flags ~= 0 then
-                setting.ident(tile.x-2,tile.y)
-                setting.reconnect(info,static,tile.x,tile.y)
-                while getTile(getBot().x,getBot().y).fg ~= seedid do
-                    setting.dec(seedid,0,0)
-                    sleep(delayplant)
-                    setting.reconnect(info,static,tile.x,tile.y)
-                end
-            end
-        end
-    end
-    for y = 0, 53, 1 do
-        for x = 0, 99, 1 do 
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
             if getTile(x,y).fg == 0 and getTile(x,y).flags ~= 0 then
                 if setting.num(seedid) == 0 then
                     break
                 end
-                setting.ident(x+1,y)
-                setting.reconnect(info,static,x+1,y)
-                if getTile(getBot().x-1,getBot().y).fg ~= seedid then
-                    setting.dec(seedid,-1,0)
-                    sleep(delayplant)
-                    setting.reconnect(info,static,x+1,y)
-                end
+                setting.ident(x,y)
                 sleep(delayplant)
+                setting.reconnect(info,static,x,y)
                 if getTile(getBot().x,getBot().y).fg ~= seedid then
                     setting.dec(seedid,0,0)
                     sleep(delayplant)
-                    setting.reconnect(info,static,x+1,y)
+                    setting.reconnect(info,static,x,y)
                 end
-                sleep(delayplant)
-                if getTile(getBot().x+1,getBot().y).fg ~= seedid then
-                    setting.dec(seedid,1,0)
-                    sleep(delayplant)
-                    setting.reconnect(info,static,x+1,y)
-                end
-                sleep(delayplant)
             end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
         end
     end
 end
@@ -2192,28 +2058,6 @@ if pnbother then
 end
 
 if leveling then
-    if getBot().level < 5 and pnbother then
-        ::TUTOR::
-        setting.joiningWorld(find,"")
-        setting.wordsrandom()
-        if not subserver then
-            if not nuked then
-                setting.indexdirt()
-            else
-                nuked = false
-                sleep(5000)
-                print(""..value.." is NUKED!, check ur world !!")
-                setting.botinfo("[ "..annount.." ] is NUKED!, check ur world !! @everyone")
-            end
-        else
-            subserver = false
-            sleep(5000)
-            print("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
-            setting.botinfo("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes @everyone")
-            sleep(120000)
-            goto TUTOR
-        end
-    end
     for idx, annount in pairs(worldleveling) do
         ::BACKK::
         setting.storageinfo()
