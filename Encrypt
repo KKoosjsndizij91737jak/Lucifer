@@ -10,6 +10,7 @@ getBot().auto_reconnect = false
 getBot().legit_mode = false
 tilebreak = {}
 infoid = {}
+lvling = {}
 worlds = {}
 sjam = {}
 index = 1
@@ -41,6 +42,10 @@ posY = customBreakY - 1
 
 for i = 1,worldperbotjammer do
     table.insert(sjam,worldtotakeback[math.floor((indexbot - 1) * worldperbotjammer + i)])
+end
+
+for i = 1,worldperbot do
+    table.insert(lvling,worldleveling[math.floor((indexbot - 1) * worldperbot + i)])
 end
 
 setting.wordsrandom = function()
@@ -1991,7 +1996,7 @@ if pnbother then
 end
 
 if leveling then
-    for idx, annount in pairs(worldleveling) do
+    for idx, annount in pairs(lvling) do
         ::BACKK::
         setting.storageinfo()
         setting.joiningWorld(annount,doorworldleveling)
