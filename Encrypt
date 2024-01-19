@@ -37,8 +37,6 @@ packY = droppackY - 1
 eventX = dropeventX - 1
 eventY = dropeventY - 1
 seed = block + 1
-posX = customBreakX - 1
-posY = customBreakY - 1
 
 for i = 1,worldperbotjammer do
     table.insert(sjam,worldtotakeback[math.floor((indexbot - 1) * worldperbotjammer + i)])
@@ -183,32 +181,6 @@ setting.writeFile = function(info,text)
     local file = io.open(""..info..".txt","a")
     file:write(text.."\n")
     file:close()
-end
-
-setting.switchup = function()
-    if indexbot == 1 then
-        if botBackup then
-            for i = 1, #backupList do
-                thread = setting.split(backupList[i],"([^"..symbol.."]+)")[1]
-                threading = setting.split(backupList[i],"([^"..symbol.."]+)")[2]
-                if typeaccount == "normal" then
-                    setting.writeFile("BotSwitch",thread.."|"..threading)
-                elseif typeaccount == "guest" then
-                    if macposition == "left" then
-                        setting.writeFile("BotSwitch",setting.generate().."|"..threading.."|"..thread)
-                    elseif macposition == "right" then
-                        setting.writeFile("BotSwitch",setting.generate().."|"..thread.."|"..threading)
-                    end
-                end
-            end
-        end
-        if proxy then
-            for _, list in ipairs(proxyList) do
-                addProxy(list)
-                getProxyManager():setLimit(proxyPerBot)
-            end
-        end
-    end
 end
 
 setting.getEnetBot = function()
@@ -432,19 +404,13 @@ setting.reconnect = function(world,id,x,y)
         setting.botinfo("[ "..getBot().name.." ] success to joining world @everyone")
     end
     if getBot().status ~= BotStatus.online then
-        setting.botinfo("[ "..getBot().name.." ] status is "..setting.getEnetBot().." @everyone")
+        setting.botinfo("[ "..getBot().name.." ] status is offline @everyone")
         while getBot().status ~= BotStatus.online do
             getBot():connect()
             sleep(delayreconnect)
             if getBot().status == BotStatus.account_banned then
-                setting.botinfo("[ "..getBot().name.." ] status is "..setting.getEnetBot()..", removing bot @everyone")
-                if not botBackup then
-                    if removingbot then
-                        removeBot()
-                        sleep(2000)
-                    end
-                    getBot():stopScript()
-                end
+                setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                getBot():stopScript()
             end
         end
         local counts = 0
@@ -476,7 +442,7 @@ setting.reconnect = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] status is "..setting.getEnetBot().." @everyone")
+        setting.botinfo("[ "..getBot().name.." ] status is online @everyone")
     end
     if getTile(getBot().x,getBot().y).fg == 6 then
         setting.botinfo("[ "..getBot().name.." ] Stuck at white door ! @everyone")
@@ -508,14 +474,8 @@ setting.reconnect = function(world,id,x,y)
                 getBot():connect()
                 sleep(delayreconnect)
                 if getBot().status == BotStatus.account_banned then
-                    setting.botinfo("[ "..getBot().name.." ] status is "..setting.getEnetBot()..", removing bot @everyone")
-                    if not botBackup then
-                        if removingbot then
-                            removeBot()
-                            sleep(2000)
-                        end
-                        getBot():stopScript()
-                    end
+                    setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                    getBot():stopScript()
                 end
             end
             local stuck = 0
@@ -563,7 +523,7 @@ setting.joinworld = function()
     print("["..indexbot.."]Clearing history")
     for _, world in pairs(worldclearhistory) do
         ::BACK::
-        setting.joiningWorld(world,"")
+        setting.joiningWorld(world,"",5000)
         setting.wordsrandom()
         setting.moving(1,0)
         sleep(250)
@@ -588,7 +548,7 @@ setting.joinworld = function()
     end
 end
 
-setting.joiningWorld = function(world,door)
+setting.joiningWorld = function(world,door,cooldown)
     name = world
     if door ~= "" then
         name = name .. "|" ..door
@@ -607,24 +567,19 @@ setting.joiningWorld = function(world,door)
         while not getBot():isInWorld(world:upper()) and not nuked and not subserver do
             if getBot():getPing() == 0 then
                 getBot():disconnect()
-                sleep(4000)
+                sleep(2000)
             end
             while getBot().status ~= BotStatus.online do
                 getBot():connect()
                 sleep(delayreconnect)
                 if getBot().status == BotStatus.account_banned then
-                    if not botBackup then
-                        if removingbot then
-                            removeBot()
-                            sleep(2000)
-                        end
-                        getBot():stopScript()
-                    end
+                    setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                    getBot():stopScript()
                 end
             end
             getBot():sendPacket(3,"action|join_request\nname|"..name.."\ninvitedWorld|0")
             listenEvents(8)
-            sleep(delaywarp)
+            sleep(cooldown)
         end
         removeEvents()
         sleep(2000)
@@ -641,17 +596,12 @@ setting.joiningWorld = function(world,door)
                     getBot():connect()
                     sleep(delayreconnect)
                     if getBot().status == BotStatus.account_banned then
-                        if not botBackup then
-                            if removingbot then
-                                removeBot()
-                                sleep(2000)
-                            end
-                            getBot():stopScript()
-                        end
+                        setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                        getBot():stopScript()
                     end
                 end
                 getBot():sendPacket(3,"action|join_request\nname|"..name.."\ninvitedWorld|0")
-                sleep(delaywarp)
+                sleep(cooldown)
                 stuck = stuck + 1
                 if stuck == 5 then
                     wrong = true
@@ -670,7 +620,7 @@ setting.takepickaxe = function()
     ::BACK::
     world = setting.split(worldpickaxe[index],"[^:]+")[1]
     door = setting.split(worldpickaxe[index],"[^:]+")[2]
-    setting.joiningWorld(world,door)
+    setting.joiningWorld(world,door,delaywarp)
     setting.wordsrandom()
     if not subserver then
         if not nuked then
@@ -684,8 +634,10 @@ setting.takepickaxe = function()
                             sleep(1000)
                             setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
-                        getBot():setDirection(false)
                         if setting.num(98) > 0  then
+                            setting.moving(1,0)
+                            sleep(1000)
+                            getBot():setDirection(false)
                             getBot():wear(98)
                             sleep(500)
                             break
@@ -724,7 +676,7 @@ setting.support = function()
     ::BACK::
     world = setting.split(worlditemtowear[index],"[^:]+")[1]
     door = setting.split(worlditemtowear[index],"[^:]+")[2]
-    setting.joiningWorld(world,door)
+    setting.joiningWorld(world,door,delaywarp)
     setting.webhookinfo()
     setting.wordsrandom()
     if not subserver then
@@ -782,7 +734,7 @@ setting.storingevents = function(threads)
     for i = setting.event , #worldevent do
         ::Here::
         world = worldevent[i]
-        setting.joiningWorld(world,doorworldevent)
+        setting.joiningWorld(world,doorworldevent,delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
         if not subserver then
@@ -922,7 +874,7 @@ setting.storingpacks = function()
     for i = setting.pack , #worldpack do
         ::Here::
         world = worldpack[i]
-        setting.joiningWorld(world,doorworldpack)
+        setting.joiningWorld(world,doorworldpack,delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
         if not subserver then
@@ -1062,7 +1014,7 @@ setting.storingseeds = function(info,seedid)
     for i = setting.seed , #worldseed do
         ::Here::
         world = worldseed[i]
-        setting.joiningWorld(world,doorworldseed)
+        setting.joiningWorld(world,doorworldseed,delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
         if not subserver then
@@ -1196,7 +1148,7 @@ setting.rotate = function(info,static,blockid)
                     setting.buying()
                     setting.storingpacks()
                     print("["..indexbot.."]Pnb")
-                    setting.joiningWorld(info,static)
+                    setting.joiningWorld(info,static,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                     goto BACK
@@ -1228,7 +1180,7 @@ setting.rotate = function(info,static,blockid)
                     setting.buying()
                     setting.storingpacks()
                     print("["..indexbot.."]Pnb")
-                    setting.joiningWorld(info,static)
+                    setting.joiningWorld(info,static,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                     goto BACK
@@ -1237,18 +1189,20 @@ setting.rotate = function(info,static,blockid)
         end
     else
         ::BACK::
-        setting.joiningWorld(find,"")
+        setting.joiningWorld(find,"",delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
         if not subserver then
             if not nuked then
-                while not getBot():isInTile(posX,posY) do
-                    setting.ident(posX,posY)
-                    sleep(500)
+                for i , tile in ipairs(getBot():getWorld():getTiles()) do
+                    if tile.fg == 226 then
+                        setting.ident(tile.x,tile.y-1)
+                        sleep(500)
+                        setting.reconnect(find,"",tile.x,tile.y-1)
+                    end
                 end
                 botX = getBot().x
                 botY = getBot().y
-                find = getBot():getWorld().name
                 if pnbtile == 1 then
                     while setting.num(blockid) >= pnbtile do
                         if getTile(botX,botY + tileY).bg ~= 0 or getTile(botX, botY + tileY).fg ~= 0 then
@@ -1349,16 +1303,16 @@ setting.rechecking = function(threads)
             if itemtowear then
                 setting.support()
                 print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(threads,doorfarm)
+                setting.joiningWorld(threads,doorfarm,delaywarp)
                 setting.wordsrandom()
                 setting.webhookinfo()
             end
         end
         if setting.num(block) > 180 then
             if pnbother then
-                setting.rotate(threads,doorfarm,block)
+                setting.rotate(threads,"",block)
                 print("["..indexbot.."]Harvesting")
-                setting.joiningWorld(threads,doorfarm)
+                setting.joiningWorld(threads,doorfarm,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             else
@@ -1368,14 +1322,14 @@ setting.rechecking = function(threads)
         if setting.num(eventList[1]) > amountevent then
             setting.storingevents(threads)
             print("["..indexbot.."]Rechecking")
-            setting.joiningWorld(threads,doorfarm)
+            setting.joiningWorld(threads,doorfarm,delaywarp)
             setting.webhookinfo()
             setting.wordsrandom()
         elseif setting.num(seed) >= amountseed then
             if dontplant then
                 setting.storingseeds(threads,seed)
                 print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(threads,doorfarm)
+                setting.joiningWorld(threads,doorfarm,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             else
@@ -1383,7 +1337,7 @@ setting.rechecking = function(threads)
                 if setting.num(seed) >= amountseed then
                     setting.storingseeds(threads,seed)
                     print("["..indexbot.."]Harvesting")
-                    setting.joiningWorld(threads,doorfarm)
+                    setting.joiningWorld(threads,doorfarm,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 end
@@ -1393,7 +1347,7 @@ setting.rechecking = function(threads)
             setting.buying()
             setting.storingpacks()
             print("["..indexbot.."]Rechecking")
-            setting.joiningWorld(threads,doorfarm)
+            setting.joiningWorld(threads,doorfarm,delaywarp)
             setting.webhookinfo()
             setting.wordsrandom()
         end
@@ -1411,9 +1365,9 @@ setting.rechecking = function(threads)
             end
             if setting.num(block) > 180 then
                 if pnbother then
-                    setting.rotate(threads,doorfarm,block)
+                    setting.rotate(threads,"",block)
                     print("["..indexbot.."]Harvesting")
-                    setting.joiningWorld(threads,doorfarm)
+                    setting.joiningWorld(threads,doorfarm,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 else
@@ -1423,14 +1377,14 @@ setting.rechecking = function(threads)
             if setting.num(eventList[1]) > amountevent then
                 setting.storingevents(threads)
                 print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(threads,doorfarm)
+                setting.joiningWorld(threads,doorfarm,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             elseif setting.num(seed) >= amountseed then
                 if dontplant then
                     setting.storingseeds(threads,seed)
                     print("["..indexbot.."]Rechecking")
-                    setting.joiningWorld(threads,doorfarm)
+                    setting.joiningWorld(threads,doorfarm,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 else
@@ -1438,7 +1392,7 @@ setting.rechecking = function(threads)
                     if setting.num(seed) >= amountseed then
                         setting.storingseeds(threads,seed)
                         print("["..indexbot.."]Harvesting")
-                        setting.joiningWorld(threads,doorfarm)
+                        setting.joiningWorld(threads,doorfarm,delaywarp)
                         setting.webhookinfo()
                         setting.wordsrandom()
                     end
@@ -1448,7 +1402,7 @@ setting.rechecking = function(threads)
                 setting.buying()
                 setting.storingpacks()
                 print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(threads,doorfarm)
+                setting.joiningWorld(threads,doorfarm,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             end
@@ -1472,14 +1426,14 @@ setting.rechecking = function(threads)
     if setting.num(seed) >= amountseed then
         setting.storingseeds(threads,seed)
         print("["..indexbot.."]Rechecking")
-        setting.joiningWorld(threads,doorfarm)
+        setting.joiningWorld(threads,doorfarm,delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
     end
 end
 
 setting.levelingcek = function(params)
-    print("["..indexbot.."]Rechecking")
+    print("["..indexbot.."]Leveling")
     ::BACK::
     for _, obj in pairs(getBot():getWorld():getObjects()) do
         if obj.id == idblockleveling then
@@ -1493,28 +1447,30 @@ setting.levelingcek = function(params)
                 setting.reconnect(params,doorworldleveling,math.floor(obj.x / 32),math.floor(obj.y / 32))
             end
             if setting.num(idblockleveling) > 180 then
-                if pnbother then
-                    setting.rotate(params,doorworldleveling,idblockleveling)
-                    print("["..indexbot.."]Rechecking")
-                    setting.joiningWorld(params,doorworldleveling)
-                    setting.webhookinfo()
-                    setting.wordsrandom()
-                else
-                    setting.rotate(params,doorworldleveling,idblockleveling)
+                if getBot().level >= setminlvl then
+                    if pnbother then
+                        setting.rotate(params,"",idblockleveling)
+                        print("["..indexbot.."]Leveling")
+                        setting.joiningWorld(params,doorworldleveling,delaywarp)
+                        setting.webhookinfo()
+                        setting.wordsrandom()
+                    else
+                        setting.rotate(params,doorworldleveling,idblockleveling)
+                    end
                 end
             end
             if setting.num(eventList[1]) > amountevent then
                 setting.storingevents(params)
-                print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(params,doorworldleveling)
+                print("["..indexbot.."]Leveling")
+                setting.joiningWorld(params,doorworldleveling,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             elseif setting.num(idblockleveling+1) >= amountseed then
                 setting.plant(params,doorworldleveling,idblockleveling+1)
                 if setting.num(idblockleveling+1) >= amountseed then
                     setting.storingseeds(params,idblockleveling+1)
-                    print("["..indexbot.."]Harvesting")
-                    setting.joiningWorld(params,doorworldleveling)
+                    print("["..indexbot.."]Leveling")
+                    setting.joiningWorld(params,doorworldleveling,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 end
@@ -1522,8 +1478,8 @@ setting.levelingcek = function(params)
             elseif getBot().gem_count >= mingems and buypack then
                 setting.buying()
                 setting.storingpacks()
-                print("["..indexbot.."]Rechecking")
-                setting.joiningWorld(params,doorworldleveling)
+                print("["..indexbot.."]Leveling")
+                setting.joiningWorld(params,doorworldleveling,delaywarp)
                 setting.webhookinfo()
                 setting.wordsrandom()
             end
@@ -1546,8 +1502,8 @@ setting.levelingcek = function(params)
     end
     if setting.num(idblockleveling+1) >= amountseed then
         setting.storingseeds(params,idblockleveling+1)
-        print("["..indexbot.."]Rechecking")
-        setting.joiningWorld(params,doorworldleveling)
+        print("["..indexbot.."]Leveling")
+        setting.joiningWorld(params,doorworldleveling,delaywarp)
         setting.webhookinfo()
         setting.wordsrandom()
     end
@@ -1565,9 +1521,9 @@ setting.harvest = function(threads)
             if getTile(x,y).fg == seed and getTile(x,y):canHarvest() then
                 if setting.num(block) > 180 then
                     if pnbother then
-                        setting.rotate(threads,doorfarm,block)
+                        setting.rotate(threads,"",block)
                         print("["..indexbot.."]Harvesting")
-                        setting.joiningWorld(threads,doorfarm)
+                        setting.joiningWorld(threads,doorfarm,delaywarp)
                         setting.webhookinfo()
                         setting.wordsrandom()
                     else
@@ -1578,7 +1534,7 @@ setting.harvest = function(threads)
                     if itemtowear then
                         setting.support()
                         print("["..indexbot.."]Harvesting")
-                        setting.joiningWorld(threads,doorfarm)
+                        setting.joiningWorld(threads,doorfarm,delaywarp)
                         setting.webhookinfo()
                         setting.wordsrandom()
                     end
@@ -1586,14 +1542,14 @@ setting.harvest = function(threads)
                 if setting.num(eventList[1]) > amountevent then
                     setting.storingevents(threads)
                     print("["..indexbot.."]Harvesting")
-                    setting.joiningWorld(threads,doorfarm)
+                    setting.joiningWorld(threads,doorfarm,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 elseif setting.num(seed) > amountseed then
                     if dontplant then
                         setting.storingseeds(threads,seed)
                         print("["..indexbot.."]Harvesting")
-                        setting.joiningWorld(threads,doorfarm)
+                        setting.joiningWorld(threads,doorfarm,delaywarp)
                         setting.webhookinfo()
                         setting.wordsrandom()
                     else
@@ -1601,7 +1557,7 @@ setting.harvest = function(threads)
                         if setting.num(seed) >= amountseed then
                             setting.storingseeds(threads,seed)
                             print("["..indexbot.."]Harvesting")
-                            setting.joiningWorld(threads,doorfarm)
+                            setting.joiningWorld(threads,doorfarm,delaywarp)
                             setting.webhookinfo()
                             setting.wordsrandom()
                         end
@@ -1611,7 +1567,7 @@ setting.harvest = function(threads)
                     setting.buying()
                     setting.storingpacks()
                     print("["..indexbot.."]Harvesting")
-                    setting.joiningWorld(threads,doorfarm)
+                    setting.joiningWorld(threads,doorfarm,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                 end
@@ -1659,23 +1615,25 @@ setting.levelings = function(params)
                     break
                 end
                 if setting.num(idblockleveling) > 180 then
-                    if pnbother then
-                        setting.rotate(params,doorworldleveling,idblockleveling)
-                        print("["..indexbot.."]Levelings")
-                        setting.joiningWorld(params,doorworldleveling)
-                        setting.webhookinfo()
-                        setting.wordsrandom()
-                    else
-                        setting.rotate(params,doorworldleveling,idblockleveling)
+                    if getBot().level >= setminlvl then
+                        if pnbother then
+                            setting.rotate(params,"",idblockleveling)
+                            print("["..indexbot.."]Levelings")
+                            setting.joiningWorld(params,doorworldleveling,delaywarp)
+                            setting.webhookinfo()
+                            setting.wordsrandom()
+                        else
+                            setting.rotate(params,doorworldleveling,idblockleveling)
+                        end
+                        goto BACK
                     end
-                    goto BACK
                 end
                 if setting.num(idblockleveling+1) > amountseed then
                     setting.plant(params,doorworldleveling,idblockleveling+1)
                     if setting.num(idblockleveling+1) >= amountseed then
                         setting.storingseeds(params,idblockleveling+1)
                         print("["..indexbot.."]Levelings")
-                        setting.joiningWorld(params,doorworldleveling)
+                        setting.joiningWorld(params,doorworldleveling,delaywarp)
                         setting.webhookinfo()
                         setting.wordsrandom()
                     end
@@ -1684,7 +1642,7 @@ setting.levelings = function(params)
                     setting.buying()
                     setting.storingpacks()
                     print("["..indexbot.."]Levelings")
-                    setting.joiningWorld(params,doorworldleveling)
+                    setting.joiningWorld(params,doorworldleveling,delaywarp)
                     setting.webhookinfo()
                     setting.wordsrandom()
                     goto BACK
@@ -1697,11 +1655,7 @@ setting.levelings = function(params)
                     sleep(delayharvest)
                     setting.reconnect(params,doorworldleveling,x,y)
                 end
-                if leveling then
-                    if getBot().level >= setminlvl then
-                        getBot():collect(range)
-                    end
-                else
+                if getBot().level >= setminlvl then
                     getBot():collect(range)
                 end
                 sleep(30)
@@ -1768,7 +1722,7 @@ end
 setting.breakjammers = function()
     for _, idx in pairs(sjam) do
         print("["..indexbot.."]Take back jammer")
-        setting.joiningWorld(idx,"")
+        setting.joiningWorld(idx,"",delaywarp)
         while getTile(getBot().x,getBot().y).fg == 6 do
             setting.moving(1,0)
             sleep(500)
@@ -1802,7 +1756,7 @@ setting.takejammer = function(threads)
     print("["..indexbot.."]Take jammers")
     world = setting.split(worldjammer[index],"[^:]+")[1]
     door = setting.split(worldjammer[index],"[^:]+")[2]
-    setting.joiningWorld(world,door)
+    setting.joiningWorld(world,door,delaywarp)
     setting.webhookinfo()
     if not subserver then
         if not nuked then
@@ -1816,10 +1770,10 @@ setting.takejammer = function(threads)
                             sleep(1000)
                             setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
-                        getBot():setDirection(false)
                         if setting.num(226) > 1 then
-                            setting.moving(-1,0)
+                            setting.moving(1,0)
                             sleep(1000)
+                            getBot():setDirection(false)
                             getBot():drop(226,setting.num(226) - 1)
                             sleep(2000)
                             break
@@ -1872,7 +1826,7 @@ setting.storingjammer = function()
     print("["..indexbot.."]Storing jammer")
     world = setting.split(worldjammer[index],"[^:]+")[1]
     door = setting.split(worldjammer[index],"[^:]+")[2]
-    setting.joiningWorld(world,door)
+    setting.joiningWorld(world,door,delaywarp)
     setting.webhookinfo()
     if not subserver then
         if not nuked then
@@ -1927,11 +1881,9 @@ setting.storingjammer = function()
     end
 end
 
-setting.switchup()
-
 if setting.num(9640) > 0 then
     ::SUCK::
-    setting.joiningWorld(getBot().name,"")
+    setting.joiningWorld(getBot().name,"",3000)
     setting.wordsrandom()
     while getTile(getBot().x,getBot().y - 1).fg ~= 9640 do
         setting.dec(9640,0,-1)
@@ -1965,18 +1917,12 @@ if pnbother then
     else
         print("["..indexbot.."]Generating worlds")
         setting.botinfo("Bot : "..getBot().name.." is generating a new world")
-        setting.joiningWorld(find,"")
-        setting.moving(1,0)
-        sleep(500)
-        setting.reconnect(find,"")
+        setting.joiningWorld(find,"",3000)
         if not subserver then
             if not nuked then
-                setting.placeall()
-                setting.botinfo("Bot : "..getBot().name.." success generating a new world, the world name is : "..find.."")
-                setting.writeFile("jammer",'"'..find..'",')
-                if setting.num(226) > 0 then
-                    goto HERE
-                end
+                setting.moving(1,0)
+                sleep(500)
+                setting.reconnect(find,"")
             else
                 nuked = false
                 sleep(5000)
@@ -1993,13 +1939,16 @@ if pnbother then
             goto HERE
         end
     end
+    setting.placeall()
+    setting.botinfo("Bot : "..getBot().name.." success generating a new world, the world name is : "..find.."")
+    setting.writeFile("jammer",'"'..find..'",')
 end
 
 if leveling then
     for idx, annount in pairs(lvling) do
         ::BACKK::
         setting.storageinfo()
-        setting.joiningWorld(annount,doorworldleveling)
+        setting.joiningWorld(annount,doorworldleveling,delaywarp)
         setting.wordsrandom()
         setting.webhookinfo()
         if not subserver then
@@ -2041,7 +1990,7 @@ while true do
     for _, value in ipairs(worlds) do
         ::Rets::
         setting.storageinfo()
-        setting.joiningWorld(value,doorfarm)
+        setting.joiningWorld(value,doorfarm,delaywarp)
         setting.webhookinfo()
         if not subserver then
             if not nuked then
@@ -2088,7 +2037,7 @@ while true do
             setting.storingseeds(threads,seed)
         end
         if pnbother then
-            setting.joiningWorld(find,"")
+            setting.joiningWorld(find,"",delaywarp)
             while getTile(getBot().x,getBot().y).fg == 6 do
                 move(1,0)
                 sleep(500)
