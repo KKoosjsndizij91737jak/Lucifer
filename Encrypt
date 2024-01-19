@@ -1423,13 +1423,6 @@ setting.rechecking = function(threads)
             end
         end
     end
-    if setting.num(seed) >= amountseed then
-        setting.storingseeds(threads,seed)
-        print("["..indexbot.."]Rechecking")
-        setting.joiningWorld(threads,doorfarm,delaywarp)
-        setting.webhookinfo()
-        setting.wordsrandom()
-    end
 end
 
 setting.levelingcek = function(params)
