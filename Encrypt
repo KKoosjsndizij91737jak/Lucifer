@@ -2032,11 +2032,11 @@ while true do
         if pnbother then
             setting.joiningWorld(find,"",delaywarp)
             while getTile(getBot().x,getBot().y).fg == 6 do
-                move(1,0)
+                setting.moving(1,0)
                 sleep(500)
             end
             while getTile(getBot().x,getBot().y - 1).fg == 226 do
-                punch(0,-1)
+                setting.idx(0,-1)
                 sleep(delaypunch)
                 setting.reconnect(find,"",getBot().x,getBot().y)
             end
