@@ -1,5 +1,3 @@
-transcedence = {12,30,686,858,886,1040,1294,4164,4190,1684}
-
 for i, bot in pairs(getBots()) do
     if getBot().name:upper() == bot.name:upper() then
         indexbot = i
@@ -43,7 +41,7 @@ posX = customBreakY - 1
 posY = customBreakY - 1
 seed = block + 1
 
-if indexbot then
+if not autologin then
     getBot().auto_reconnect = false
     getBot().legit_mode = false
     for i = 1,worldperbotjammer do
@@ -252,7 +250,7 @@ end
 setting.hookevent = function()
     str = ""
 	for i = 1, #worldevent do
-        str = str.."\n"..string.upper(worldevent[i]).." : "..(infoid[worldevent[i]] or "?")..""
+        str = str.."\n"..string.upper(worldevent[i]).." : "..(infoevent[worldevent[i]] or "?")..""
     end
     return str
 end
@@ -272,7 +270,6 @@ setting.botinfo = function(content)
 			$payload = @{
 				content = "]]..content..[["
 			}
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Ssl3
 			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 			Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType "application/json"
 		]]
@@ -307,7 +304,7 @@ setting.webhookinfo = function()
                         fields = @(
                             @{
                                 name = "TOTAL GEMS & RUNTIME"
-                                value = "]]..""..setting.botgems().." & "..setting.goodtimes(os.difftime(os.time(),params.timechecker))..""..[["
+                                value = "]]..""..setting.botgems().." & "..setting.goodtimes(os.difftime(os.time(),setting.timechecker))..""..[["
                                 inline = "false"
                             }
                             @{
@@ -351,7 +348,6 @@ setting.webhookinfo = function()
                     }
                 )
             }
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Ssl3
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
         ]]
@@ -459,40 +455,6 @@ setting.reconnect = function(world,id,x,y)
             end
         end
         setting.botinfo("[ "..getBot().name.." ] Already back to pos ! @everyone")
-    end
-    for _, idx in pairs(transcedence) do
-        if getTile(getBot().x,getBot().y).fg == idx then
-            setting.botinfo("[ "..getBot().name.." ] Stuck! disconnecting bot @everyone")
-            print("["..indexbot.."]Stuck! disconnecting bot")
-            getBot():disconnect()
-            sleep(3000)
-            while getBot().status ~= BotStatus.online do
-                getBot():connect()
-                sleep(delayreconnect)
-                if getBot().status == BotStatus.account_banned then
-                    setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
-                    getBot():stopScript()
-                end
-            end
-            local stuck = 0
-            if id ~= "" then
-                while getTile(getBot().x,getBot().y).fg == 6 do
-                    getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
-                    sleep(delaywarp)
-                    if stuck > 3 then
-                        setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
-                    end
-                end
-            end
-            if x and y then
-                while getBot().x ~= x or getBot().y ~= y do
-                    findPath(x,y)
-                    sleep(150)
-                end
-            end
-            setting.botinfo("[ "..getBot().name.." ] Already back to pos ! @everyone")
-            print("["..indexbot.."]Already back to pos !")
-        end
     end
 end
 
@@ -694,7 +656,7 @@ setting.takepickaxe = function()
                     end
                     move(1,0)
                     sleep(1000)
-                    getBot():setDirection(false)
+                    getBot():setDirection(true)
                     getBot():wear(98)
                     sleep(1000)
                     getBot():drop(98,findItem(98) - 1)
@@ -1166,14 +1128,14 @@ setting.storingseeds = function(info,seedid)
             goto Here
         end
     end
-    infoseed[world] = ""..setting.itemFloat(seed).."x"
+    infoseed[world] = ""..setting.itemFloat(seedid).."x"
     if clearhistory then
         setting.joinworld()
     end
 end
 
 setting.setauth = function()
-    if not indexbot and withproxy then
+    if withproxy then
         getProxyManager():setLimit(botperproxy)
         for _, lists in pairs(proxyList) do
             getProxyManager():addProxy(lists)
@@ -1263,6 +1225,7 @@ setting.main = function()
         end
     end
     print("Please select all and re-execute script")
+    return 0
 end
 
 local network = math.random(3,50)
@@ -2139,7 +2102,7 @@ setting.takejammer = function(threads)
                     end
                     move(1,0)
                     sleep(1000)
-                    getBot():setDirection(false)
+                    getBot():setDirection(true)
                     getBot():drop(226,findItem(226) - 1)
                     sleep(2000)
                 end
@@ -2532,155 +2495,157 @@ setting.algorithm = function()
 end
 
 if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq" then
-    setting.setauth()
-    if autologin and not indexbot then
+    if autologin then
+        setting.setauth()
         setting.main()
-    end
-    while getBot().status ~= BotStatus.online do
-        getBot():connect()
-        sleep(delayreconnect)
-    end
-    sleep(indexbot * delayexecute)
-    while findItem(9640) > 0 do
-        setting.warp(getBot().name,"",3000)
-        while getTile(getBot().x,getBot().y - 1).fg ~= 9640 do
-            place(9640,0,-1)
-            sleep(delayplace)
+    else
+        while getBot().status ~= BotStatus.online do
+            getBot():connect()
+            sleep(delayreconnect)
         end
-    end
-    if pickaxe then
-        print("["..indexbot.."]Take pickaxe if bot not using pickaxe")
-        while findItem(98) == 0 and getBot().status == BotStatus.online do
-            setting.takepickaxe()
-            sleep(6000)
-        end
-    end
-    if autoSkipQuest then
-        while not getBot():isInWorld() do
-            setting.warp(getBot().name,"",5000)
-        end
-        addEvent(Event.variantlist, setting.hookworld)
-        runThread(function()
-            getBot():sendPacket(2, "action|wrench\n|netid|"..getLocal().netid)
-            sleep(1000)
-            getBot():sendPacket(2, "action|dialog_return\ndialog_name|popup\nnetID|"..getLocal().netid.."|\nbuttonClicked|my_worlds")
-            sleep(1000)
-        end)    
-        listenEvents(5)
-        setting.algorithm()
-    end
-    if takebackjammer then
-        setting.breakjammers()
-        setting.storingjammer()
-        getBot():stopScript()
-    end
-    if pnbother then
-        while findItem(226) == 0 do
-            setting.takejammer()
-            sleep(6000)
-        end
-        ::HERE::
-        print("["..indexbot.."]Generating worlds")
-        setting.botinfo("Bot : "..getBot().name.." is generating a new world")
-        setting.warp(find,"",3000)
-        if not subserver then
-            if not nuked then
-                while getTile(getBot().x,getBot().y).fg == 6 do
-                    move(1,0)
-                    sleep(500)
-                end
-                setting.reconnect(find,"")
-            else
-                nuked = false
-                sleep(5000)
-                print("World generate is NUKED!, Terminate script !!")
-                setting.botinfo("World generate is NUKED!, Terminate script !! @everyone")
-                getBot():stopScript()
+        sleep(indexbot * delayexecute)
+        while findItem(9640) > 0 do
+            setting.warp(getBot().name,"",3000)
+            while getTile(getBot().x,getBot().y - 1).fg ~= 9640 do
+                place(9640,0,-1)
+                sleep(delayplace)
             end
-        else
-            subserver = false
-            sleep(5000)
-            print("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
-            setting.botinfo("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes @everyone")
-            sleep(120000)
-            goto HERE
         end
-        setting.placeall()
-        setting.botinfo("Bot : "..getBot().name.." success generating a new world, the world name is : "..find.."")
-        setting.writeFile("jammer",'"'..find..'",')
-    end
-    if leveling and getBot().level < setmaxlvl then
-        setting.lepel()
-    end
-    while true do
-        for _, value in ipairs(worlds) do
-            ::Rets::
-            setting.warp(value,doorfarm,delaywarp)
-            setting.webhookinfo()
+        if pickaxe then
+            while findItem(98) == 0 and getBot().status == BotStatus.online do
+                setting.takepickaxe()
+                sleep(6000)
+            end
+        end
+        if autoSkipQuest then
+            while not getBot():isInWorld() do
+                setting.warp(getBot().name,"",5000)
+            end
+            print("["..indexbot.."]Skipping tutorial")
+            addEvent(Event.variantlist, setting.hookworld)
+            runThread(function()
+                getBot():sendPacket(2, "action|wrench\n|netid|"..getLocal().netid)
+                sleep(1000)
+                getBot():sendPacket(2, "action|dialog_return\ndialog_name|popup\nnetID|"..getLocal().netid.."|\nbuttonClicked|my_worlds")
+                sleep(1000)
+            end)    
+            listenEvents(5)
+            setting.algorithm()
+        end
+        if takebackjammer then
+            setting.breakjammers()
+            setting.storingjammer()
+            getBot():stopScript()
+        end
+        if pnbother then
+            while findItem(226) == 0 do
+                setting.takejammer()
+                sleep(6000)
+            end
+            ::HERE::
+            print("["..indexbot.."]Generating worlds")
+            setting.botinfo("Bot : "..getBot().name.." is generating a new world")
+            setting.warp(find,"",3000)
             if not subserver then
                 if not nuked then
-                    if not wrong then
-                        setting.harvest(value)
-                        setting.rechecking(value)
-                        if restAfterDoneFarm then
-                            getBot():sendPacket(3,"action|join_request\nname|EXIT\ninvitedWorld|0")
-                            sleep(restAfterDoneFarm * 60000)
-                        end
-                    else
-                        wrong = false
-                        sleep(5000)
-                        setting.writeFile("worldinfo","[ "..value.." ] is wrong id")
-                        sleep(1000)
-                        print("["..indexbot.."]"..value.." is wrong door id, skipped world")
-                        setting.botinfo("[ "..value.." ] is wrong door id, skipped world @everyone")
+                    while getTile(getBot().x,getBot().y).fg == 6 do
+                        move(1,0)
+                        sleep(500)
                     end
+                    setting.reconnect(find,"")
                 else
                     nuked = false
                     sleep(5000)
-                    setting.writeFile("worldinfo","[ "..value.." ] is NUKED !!")
-                    sleep(1000)
-                    print("["..indexbot.."]"..value.." is NUKED!, check ur world !!")
-                    setting.botinfo("[ "..value.." ] is NUKED!, check ur world !! @everyone")
+                    print("World generate is NUKED!, Terminate script !!")
+                    setting.botinfo("World generate is NUKED!, Terminate script !! @everyone")
+                    getBot():stopScript()
                 end
             else
                 subserver = false
                 sleep(5000)
-                print("["..indexbot.."]Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
+                print("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
                 setting.botinfo("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes @everyone")
                 sleep(120000)
-                goto Rets
+                goto HERE
             end
+            setting.placeall()
+            setting.botinfo("Bot : "..getBot().name.." success generating a new world, the world name is : "..find.."")
+            setting.writeFile("jammer",'"'..find..'",')
         end
-        sleep(3000)
-        if not looping then
-            if findItem(block) > 0 then
-                setting.storingblocks(threads,block)
+        if leveling and getBot().level < setmaxlvl then
+            setting.lepel()
+        end
+        while true do
+            for _, value in ipairs(worlds) do
+                ::Rets::
+                setting.warp(value,doorfarm,delaywarp)
+                setting.webhookinfo()
+                if not subserver then
+                    if not nuked then
+                        if not wrong then
+                            setting.harvest(value)
+                            setting.rechecking(value)
+                            if restAfterDoneFarm then
+                                getBot():sendPacket(3,"action|join_request\nname|EXIT\ninvitedWorld|0")
+                                sleep(restAfterDoneFarm * 60000)
+                            end
+                        else
+                            wrong = false
+                            sleep(5000)
+                            setting.writeFile("worldinfo","[ "..value.." ] is wrong id")
+                            sleep(1000)
+                            print("["..indexbot.."]"..value.." is wrong door id, skipped world")
+                            setting.botinfo("[ "..value.." ] is wrong door id, skipped world @everyone")
+                        end
+                    else
+                        nuked = false
+                        sleep(5000)
+                        setting.writeFile("worldinfo","[ "..value.." ] is NUKED !!")
+                        sleep(1000)
+                        print("["..indexbot.."]"..value.." is NUKED!, check ur world !!")
+                        setting.botinfo("[ "..value.." ] is NUKED!, check ur world !! @everyone")
+                    end
+                else
+                    subserver = false
+                    sleep(5000)
+                    print("["..indexbot.."]Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
+                    setting.botinfo("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes @everyone")
+                    sleep(120000)
+                    goto Rets
+                end
             end
-            if findItem(seed) > 0 then
-                setting.storingseeds(threads,seed)
-            end
-            if pnbother then
+            if not looping then
+                if findItem(block) > 0 then
+                    setting.storingblocks(threads,block)
+                end
+                if findItem(seed) > 0 then
+                    setting.storingseeds(threads,seed)
+                end
+                if pnbother then
+                    setting.warp(find,"",delaywarp)
+                    while getTile(getBot().x,getBot().y).fg == 6 do
+                        move(1,0)
+                        sleep(500)
+                    end
+                    while getTile(getBot().x,getBot().y - 1).fg == 226 do
+                        punch(0,-1)
+                        sleep(delaypunch)
+                        setting.reconnect(find,"",getBot().x,getBot().y)
+                    end
+                    setting.storingjammer()
+                end
                 setting.warp(find,"",delaywarp)
-                while getTile(getBot().x,getBot().y).fg == 6 do
-                    move(1,0)
-                    sleep(500)
-                end
-                while getTile(getBot().x,getBot().y - 1).fg == 226 do
-                    punch(0,-1)
-                    sleep(delaypunch)
-                    setting.reconnect(find,"",getBot().x,getBot().y)
-                end
-                setting.storingjammer()
+                print("["..indexbot.."]Already finished all world")
+                setting.botinfo("[ "..getBot().name.." ] Already finished all world, Terminated script! @everyone")
+                if removingbot then
+                    removeBot()
+                    sleep(1500)
+                end 
+                print("["..indexbot.."]Finished all world")
+                break
+            else
+                sleep(10000)
             end
-            setting.warp(find,"",delaywarp)
-            print("["..indexbot.."]Already finished all world")
-            setting.botinfo("[ "..getBot().name.." ] Already finished all world, Terminated script! @everyone")
-            if removingbot then
-                removeBot()
-                sleep(1500)
-            end 
-            print("["..indexbot.."]Finished all world")
-            break
         end
     end
 else
