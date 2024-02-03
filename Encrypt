@@ -37,7 +37,7 @@ packX = droppackX - 1
 packY = droppackY - 1
 eventX = dropeventX - 1
 eventY = dropeventY - 1
-posX = customBreakY - 1
+posX = customBreakX - 1
 posY = customBreakY - 1
 seed = block + 1
 
