@@ -1619,6 +1619,7 @@ setting.rotate = function(info,static,blockid)
                 sleep(5000)
                 print("World PNB is NUKED!, check ur world !!")
                 setting.botinfo("World PNB is NUKED!, check ur world !! @everyone")
+                getBot():stopScript()
             end
         else
             subserver = false
