@@ -1412,7 +1412,7 @@ setting.rotate = function(info,static,blockid)
                     setting.reconnect(info,static,botX,botY)
                 end
                 getBot():collect(4) 
-                sleep(30)
+                sleep(delaycollect)
                 setting.banning()
                 if autoSwitch and getBot().level >= switchOnLevel then
                     if findItem(blockid) > 0 then
@@ -1465,7 +1465,7 @@ setting.rotate = function(info,static,blockid)
                     end
                 end
                 getBot():collect(6) 
-                sleep(30)
+                sleep(delaycollect)
                 setting.banning()
                 if autoSwitch and getBot().level >= switchOnLevel then
                     if findItem(blockid) > 0 then
@@ -1528,7 +1528,7 @@ setting.rotate = function(info,static,blockid)
                             setting.reconnect(find,"",posX,posY)
                         end
                         getBot():collect(4) 
-                        sleep(30)
+                        sleep(delaycollect)
                         setting.banning()
                         if autoSwitch and getBot().level >= switchOnLevel then
                             if findItem(blockid) > 0 then
@@ -1581,7 +1581,7 @@ setting.rotate = function(info,static,blockid)
                             end
                         end
                         getBot():collect(6) 
-                        sleep(30)
+                        sleep(delaycollect)
                         setting.banning()
                         if autoSwitch and getBot().level >= switchOnLevel then
                             if findItem(blockid) > 0 then
