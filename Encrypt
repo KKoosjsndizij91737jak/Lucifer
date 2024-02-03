@@ -2715,12 +2715,6 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
                 sleep(delayplace)
             end
         end
-        if pickaxe then
-            while findItem(98) == 0 and getBot().status == BotStatus.online do
-                setting.takepickaxe()
-                sleep(6000)
-            end
-        end
         if autoSkipQuest then
             while not getBot():isInWorld() do
                 setting.warp(getBot().name,"",5000)
@@ -2735,6 +2729,12 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
             end)    
             listenEvents(5)
             setting.algorithm()
+        end
+        if pickaxe then
+            while findItem(98) == 0 and getBot().status == BotStatus.online do
+                setting.takepickaxe()
+                sleep(6000)
+            end
         end
         if takebackjammer then
             setting.breakjammers()
