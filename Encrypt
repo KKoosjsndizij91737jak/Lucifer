@@ -2697,6 +2697,7 @@ setting.algorithm = function()
             sleep(1000)
         end
     end
+    getBot().auto_collect = false
 end
 
 if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq" then
