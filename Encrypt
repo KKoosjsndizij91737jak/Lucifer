@@ -765,6 +765,7 @@ setting.warp = function(world,door,cooldown)
 end
 
 setting.takepickaxe = function()
+    getBot().auto_collect = false
     ::BACK::
     world = setting.split(worldpickaxe[index],"[^:]+")[1]
     door = setting.split(worldpickaxe[index],"[^:]+")[2]
@@ -2130,6 +2131,7 @@ setting.breakjammers = function()
 end
 
 setting.takejammer = function(threads)
+    getBot().auto_collect = false
     ::BACK::
     print("["..indexbot.."]Take jammers")
     world = setting.split(worldjammer[index],"[^:]+")[1]
@@ -2695,7 +2697,6 @@ setting.algorithm = function()
             sleep(1000)
         end
     end
-    getBot().auto_collect = false
 end
 
 if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq" then
@@ -2730,6 +2731,7 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
             listenEvents(5)
             setting.algorithm()
         end
+        getBot().auto_collect = false
         if pickaxe then
             while findItem(98) == 0 and getBot().status == BotStatus.online do
                 setting.takepickaxe()
