@@ -56,8 +56,8 @@ if indexbot then
     for i = 1,worldperbotjammer do
         table.insert(sjam,worldtotakeback[math.floor((indexbot - 1) * worldperbotjammer + i)])
     end
-    for i = 1, botPerworldPnb do
-        table.insert(exxx,customWorldPnb[math.floor((indexbot - 1) * botPerworldPnb + i)])
+    for i = 1, worldPerbotPnb do
+        table.insert(exxx,customWorldPnb[math.floor((indexbot - 1) * worldPerbotPnb + i)])
     end
     for i = 1,worldperbot do
         table.insert(lvling,worldleveling[math.floor((indexbot - 1) * worldperbot + i)])
@@ -1891,7 +1891,7 @@ setting.rotate = function(info,static,blockid)
             end
         end
     else
-        if botPerworldPnb == 1 then
+        if worldPerbotPnb == 1 then
             for idx, list in ipairs(exxx) do
                 setting.warp(list,settingDoorId,delaywarp)
                 setting.webhookinfo()
