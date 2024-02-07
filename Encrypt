@@ -815,7 +815,7 @@ setting.storingblocks = function(info,blockid)
                             findPath(blockX + (tileBlock),blockY)
                             sleep(1000)
                             local count = 0
-                            setting.reconnect(world,door,blockX + (tileBlock),blockY)
+                            setting.reconnect2(world,door,blockX + (tileBlock),blockY)
                             if blockX + (tileBlock) >= 98 then
                                 blockY = blockY - 1
                                 tileBlock = 0
@@ -823,7 +823,7 @@ setting.storingblocks = function(info,blockid)
                             while findItem(blockid) > 0 do
                                 getBot():drop(blockid,200)
                                 sleep(delaydrop)
-                                setting.reconnect(world,door,blockX + (tileBlock),blockY)
+                                setting.reconnect2(world,door,blockX + (tileBlock),blockY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileBlock = tileBlock + 1
@@ -974,7 +974,7 @@ setting.takeFirehouse = function()
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(3066) > 0  then
                             break
@@ -1027,7 +1027,7 @@ setting.takepickaxe = function()
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(98) > 0  then
                             break
@@ -1159,7 +1159,7 @@ setting.storingevents = function(threads)
                                         findPath(eventX + (tileEvent),eventY - (y - 1))
                                         sleep(1000)
                                         local count = 0
-                                        setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
+                                        setting.reconnect2(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
                                         if eventX + (tileEvent) >= 98 then
                                             eventY = eventY - 1
                                             tileEvent = 0
@@ -1168,7 +1168,7 @@ setting.storingevents = function(threads)
                                         while findItem(pack) > 0 do
                                             getBot():drop(pack,200)
                                             sleep(delaydrop)
-                                            setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
+                                            setting.reconnect2(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
                                             count = count + 1
                                             if count >= 2 then
                                                 tileEvent = tileEvent + 1
@@ -1185,7 +1185,7 @@ setting.storingevents = function(threads)
                                         findPath(eventX + (tileEvent),eventY)
                                         sleep(1000)
                                         local count = 0
-                                        setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY)
+                                        setting.reconnect2(world,doorworldevent,eventX + (tileEvent),eventY)
                                         if eventX + (tileEvent) >= 98 then
                                             eventY = eventY - 1
                                             tileEvent = 0
@@ -1194,7 +1194,7 @@ setting.storingevents = function(threads)
                                         while findItem(pack) > 0 do
                                             getBot():drop(pack,200)
                                             sleep(delaydrop)
-                                            setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY)
+                                            setting.reconnect2(world,doorworldevent,eventX + (tileEvent),eventY)
                                             count = count + 1
                                             if count >= 2 then
                                                 tileEvent = tileEvent + 1
@@ -1298,7 +1298,7 @@ setting.storingpacks = function()
                                         findPath(packX + (tilePack),packY - (y-1))
                                         sleep(1000)
                                         local count = 0
-                                        setting.reconnect(world,doorworldpack,packX + (tilePack),packY - (y-1))
+                                        setting.reconnect2(world,doorworldpack,packX + (tilePack),packY - (y-1))
                                         if packX + (tilePack) >= 98 then
                                             packY = packY - 1
                                             tilePack = 0
@@ -1307,7 +1307,7 @@ setting.storingpacks = function()
                                         while findItem(pack) > 0 do
                                             getBot():drop(pack,200)
                                             sleep(delaydrop)
-                                            setting.reconnect(world,doorworldpack,packX + (tilePack),packY - (y-1))
+                                            setting.reconnect2(world,doorworldpack,packX + (tilePack),packY - (y-1))
                                             count = count + 1
                                             if count >= 2 then
                                                 tilePack = tilePack + 1
@@ -1324,7 +1324,7 @@ setting.storingpacks = function()
                                         findPath(packX + (tilePack),packY)
                                         sleep(1000)
                                         local count = 0
-                                        setting.reconnect(world,doorworldpack,packX + (tilePack),packY)
+                                        setting.reconnect2(world,doorworldpack,packX + (tilePack),packY)
                                         if packX + (tilePack) >= 98 then
                                             packY = packY - 1
                                             tilePack = 0
@@ -1333,7 +1333,7 @@ setting.storingpacks = function()
                                         while findItem(pack) > 0 do
                                             getBot():drop(pack,200)
                                             sleep(delaydrop)
-                                            setting.reconnect(world,doorworldpack,packX + (tilePack),packY)
+                                            setting.reconnect2(world,doorworldpack,packX + (tilePack),packY)
                                             count = count + 1
                                             if count >= 2 then
                                                 tilePack = tilePack + 1
@@ -1445,7 +1445,7 @@ setting.storingseeds = function(info,seedid)
                                 findPath(seedX + (tileSeed),seedY)
                                 sleep(1000)
                                 local count = 0
-                                setting.reconnect(world,doorworldseed,seedX + (tileSeed),seedY)
+                                setting.reconnect2(world,doorworldseed,seedX + (tileSeed),seedY)
                                 if seedX + (tileSeed) >= 98 then
                                     seedY = seedY - 1
                                     tileSeed = 0
@@ -1454,7 +1454,7 @@ setting.storingseeds = function(info,seedid)
                                 while findItem(seedid) > 0 do
                                     getBot():drop(seedid,200)
                                     sleep(delaydrop)
-                                    setting.reconnect(world,doorworldseed,seedX + (tileSeed),seedY)
+                                    setting.reconnect2(world,doorworldseed,seedX + (tileSeed),seedY)
                                     count = count + 1
                                     if count >= 2 then
                                         tileSeed = tileSeed + 1
@@ -1641,11 +1641,11 @@ setting.banning = function()
     end
 end
 
+local findRandom = math.random(3,50)
 setting.rotate = function(info,static,blockid)
     ::BACK::
     print("["..indexbot.."]Pnb")
-    findRandom = math.random(3,50)
-    if not autoFind then
+    if not useCustomWorld then
         if not pnbother then
             while not getBot():isInTile(98,findRandom) do
                 findPath(98,findRandom)
@@ -2229,7 +2229,7 @@ setting.rechecking = function(threads)
             end
         end
         if findItem(block) > 180 then
-            if pnbother or autoFind then
+            if pnbother or useCustomWorld then
                 setting.rotate(threads,"",block)
                 print("["..indexbot.."]Harvesting")
                 setting.warp(threads,doorfarm,delaywarp)
@@ -2282,7 +2282,7 @@ setting.rechecking = function(threads)
                 setting.reconnect(threads,doorfarm,math.floor(obj.x / 32),math.floor(obj.y / 32))
             end
             if findItem(block) > 180 then
-                if pnbother or autoFind then
+                if pnbother or useCustomWorld then
                     setting.rotate(threads,"",block)
                     print("["..indexbot.."]Harvesting")
                     setting.warp(threads,doorfarm,delaywarp)
@@ -2359,7 +2359,7 @@ setting.levelingcek = function(params)
                     setting.reconnect(params,doorworldleveling,math.floor(obj.x / 32),math.floor(obj.y / 32))
                 end
                 if findItem(idblockleveling) > 180 then
-                    if pnbother or autoFind then
+                    if pnbother or useCustomWorld then
                         setting.rotate(params,"",idblockleveling)
                         print("["..indexbot.."]Leveling")
                         setting.warp(params,doorworldleveling,delaywarp)
@@ -2430,7 +2430,7 @@ setting.harvest = function(threads)
         for x = tileA, tileB, tileC do
             if getTile(x,y).fg == seed and getTile(x,y):canHarvest() then
                 if findItem(block) > 180 then
-                    if pnbother or autoFind then
+                    if pnbother or useCustomWorld then
                         setting.rotate(threads,"",block)
                         print("["..indexbot.."]Harvesting")
                         setting.warp(threads,doorfarm,delaywarp)
@@ -2532,7 +2532,7 @@ setting.levelings = function(params)
                 end
                 if findItem(idblockleveling) > 180 then
                     if getBot().level >= setminlvl then
-                        if pnbother or autoFind then
+                        if pnbother or useCustomWorld then
                             setting.rotate(params,"",idblockleveling)
                             print("["..indexbot.."]Levelings")
                             setting.warp(params,doorworldleveling,delaywarp)
@@ -2701,25 +2701,30 @@ setting.takeingre = function(threads)
                                 sleep(1000)
                                 collect(2)
                                 sleep(1000)
-                                setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                                setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                             end
                             if findItem(pack) > 0 then
                                 break
                             end
                         end
                     end
-                    move(1,0)
-                    sleep(1000)
-                    getBot():setDirection(true)
-                    sleep(1000)
-                    getBot():drop(226,findItem(226) - maxFindWorld)
-                    sleep(delaydrop)
-                    getBot():drop(202,findItem(202) - maxFindWorld)
-                    sleep(delaydrop)
-                    getBot():drop(2,findItem(2) - (maxFindWorld * 2))
-                    sleep(delaydrop)
-                    getBot():drop(doorItemId,findItem(doorItemId) - maxFindWorld)
-                    sleep(delaydrop)
+                    for _, pack in pairs(ingrejammer) do
+                        if findItem(pack) > 0 then
+                            move(1,0)
+                            sleep(1000)
+                            getBot():setDirection(true)
+                            sleep(1000)
+                            getBot():drop(226,findItem(226) - maxFindWorld)
+                            sleep(delaydrop)
+                            getBot():drop(202,findItem(202) - maxFindWorld)
+                            sleep(delaydrop)
+                            getBot():drop(2,findItem(2) - (maxFindWorld * 2))
+                            sleep(delaydrop)
+                            getBot():drop(doorItemId,findItem(doorItemId) - maxFindWorld)
+                            sleep(delaydrop)
+                            setting.reconnect2(world,door,getBot().x,getBot().y)
+                        end
+                    end
                 else
                     for _, pack in pairs(notingrejammer) do
                         for _, obj in pairs(getBot():getWorld():getObjects()) do
@@ -2728,23 +2733,28 @@ setting.takeingre = function(threads)
                                 sleep(1000)
                                 collect(2)
                                 sleep(1000)
-                                setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                                setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                             end
                             if findItem(pack) > 0 then
                                 break
                             end
                         end
                     end
-                    move(1,0)
-                    sleep(1000)
-                    getBot():setDirection(true)
-                    sleep(1000)
-                    getBot():drop(202,findItem(202) - maxFindWorld)
-                    sleep(delaydrop)
-                    getBot():drop(2,findItem(2) - (maxFindWorld * 2))
-                    sleep(delaydrop)
-                    getBot():drop(doorItemId,findItem(doorItemId) - maxFindWorld)
-                    sleep(delaydrop)
+                    for _, pack in pairs(notingrejammer) do
+                        if findItem(pack) > 0 then
+                            move(1,0)
+                            sleep(1000)
+                            getBot():setDirection(true)
+                            sleep(1000)
+                            getBot():drop(202,findItem(202) - maxFindWorld)
+                            sleep(delaydrop)
+                            getBot():drop(2,findItem(2) - (maxFindWorld * 2))
+                            sleep(delaydrop)
+                            getBot():drop(doorItemId,findItem(doorItemId) - maxFindWorld)
+                            sleep(delaydrop)
+                            setting.reconnect2(world,door,getBot().x,getBot().y)
+                        end
+                    end
                 end
             else
                 wrong = false
@@ -2787,17 +2797,19 @@ setting.takejammer = function(threads)
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(226) > 0 then
                             break
                         end
                     end
-                    move(1,0)
-                    sleep(1000)
-                    getBot():setDirection(true)
-                    getBot():drop(226,findItem(226) - 1)
-                    sleep(2000)
+                    if findItem(226) > 0 then
+                        move(1,0)
+                        sleep(1000)
+                        getBot():setDirection(true)
+                        getBot():drop(226,findItem(226) - 1)
+                        sleep(2000)
+                    end
                 elseif pnbothermode == "wl" then
                     for _, obj in pairs(getBot():getWorld():getObjects()) do
                         if obj.id == 242 then
@@ -2805,17 +2817,19 @@ setting.takejammer = function(threads)
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(242) > 0 then
                             break
                         end
                     end
-                    move(1,0)
-                    sleep(1000)
-                    getBot():setDirection(true)
-                    getBot():drop(242,findItem(242) - 1)
-                    sleep(2000)
+                    if findItem(242) > 0 then
+                        move(1,0)
+                        sleep(1000)
+                        getBot():setDirection(true)
+                        getBot():drop(242,findItem(242) - 1)
+                        sleep(2000)
+                    end
                 elseif pnbothermode == "wl_sj" then
                     for _, obj in pairs(getBot():getWorld():getObjects()) do
                         if obj.id == 242 then
@@ -2823,7 +2837,7 @@ setting.takejammer = function(threads)
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(242) > 0 then
                             break
@@ -2835,19 +2849,23 @@ setting.takejammer = function(threads)
                             sleep(1000)
                             collect(2)
                             sleep(1000)
-                            setting.reconnect(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
+                            setting.reconnect2(world,door,math.floor(obj.x / 32),math.floor(obj.y / 32))
                         end
                         if findItem(226) > 0 then
                             break
                         end
                     end
-                    move(1,0)
-                    sleep(1000)
-                    getBot():setDirection(true)
-                    getBot():drop(226,findItem(226) - 1)
-                    sleep(2000)
-                    getBot():drop(242,findItem(242) - 1)
-                    sleep(2000)
+                    if findItem(226) > 0 then
+                        move(1,0)
+                        sleep(1000)
+                        getBot():setDirection(true)
+                        getBot():drop(226,findItem(226) - 1)
+                        sleep(2000)
+                    end
+                    if findItem(242) > 0 then
+                        getBot():drop(242,findItem(242) - 1)
+                        sleep(2000)
+                    end
                 end
             else
                 wrong = false
@@ -3014,7 +3032,7 @@ setting.storingFirehouse = function()
                         findPath(jammerX + (tileJammer),jammerY)
                         sleep(1000)
                         local count = 0
-                        setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                        setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                         if jammerX + (tileJammer) >= 98 then
                             jammerY = jammerY - 1
                             tileJammer = 0
@@ -3022,7 +3040,7 @@ setting.storingFirehouse = function()
                         while findItem(3066) > 0 do
                             getBot():drop(3066,200)
                             sleep(delaydrop)
-                            setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                            setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                             count = count + 1
                             if count >= 2 then
                                 tileJammer = tileJammer + 1
@@ -3075,7 +3093,7 @@ setting.storingjammer = function()
                             findPath(jammerX + (tileJammer),jammerY)
                             sleep(1000)
                             local count = 0
-                            setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                            setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                             if jammerX + (tileJammer) >= 98 then
                                 jammerY = jammerY - 1
                                 tileJammer = 0
@@ -3083,7 +3101,7 @@ setting.storingjammer = function()
                             while findItem(226) > 0 do
                                 getBot():drop(226,200)
                                 sleep(delaydrop)
-                                setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                                setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileJammer = tileJammer + 1
@@ -3102,7 +3120,7 @@ setting.storingjammer = function()
                             findPath(jammerX + (tileJammer),jammerY)
                             sleep(1000)
                             local count = 0
-                            setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                            setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                             if jammerX + (tileJammer) >= 98 then
                                 jammerY = jammerY - 1
                                 tileJammer = 0
@@ -3110,7 +3128,7 @@ setting.storingjammer = function()
                             while findItem(242) > 0 do
                                 getBot():drop(242,200)
                                 sleep(delaydrop)
-                                setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                                setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileJammer = tileJammer + 1
@@ -3129,7 +3147,7 @@ setting.storingjammer = function()
                             findPath(jammerX + (tileJammer),jammerY)
                             sleep(1000)
                             local count = 0
-                            setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                            setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                             if jammerX + (tileJammer) >= 98 then
                                 jammerY = jammerY - 1
                                 tileJammer = 0
@@ -3137,7 +3155,7 @@ setting.storingjammer = function()
                             while findItem(226) > 0 do
                                 getBot():drop(226,200)
                                 sleep(delaydrop)
-                                setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                                setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileJammer = tileJammer + 1
@@ -3147,7 +3165,7 @@ setting.storingjammer = function()
                             while findItem(242) > 0 do
                                 getBot():drop(242,200)
                                 sleep(delaydrop)
-                                setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                                setting.reconnect2(world,door,jammerX + (tileJammer),jammerY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileJammer = tileJammer + 1
@@ -3712,7 +3730,7 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
             setting.storingjammer()
             getBot():stopScript()
         end
-        if autoFind and customWorldPnb[1] == "x" then
+        if autoFind then
             if useJammer then
                 while findItem(226) == 0 or findItem(202) == 0 or findItem(2) == 0 or findItem(doorItemId) == 0 do
                     setting.takeingre()
