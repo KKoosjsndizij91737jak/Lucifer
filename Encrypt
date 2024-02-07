@@ -1641,10 +1641,10 @@ setting.banning = function()
     end
 end
 
-local findRandom = math.random(3,50)
 setting.rotate = function(info,static,blockid)
     ::BACK::
     print("["..indexbot.."]Pnb")
+    findRandom = math.random(3,50)
     if not autoFind then
         if not pnbother then
             while not getBot():isInTile(98,findRandom) do
