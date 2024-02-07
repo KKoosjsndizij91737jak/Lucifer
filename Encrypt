@@ -4,6 +4,7 @@ for i, bot in pairs(getBots()) do
     end
 end
 
+stuckOnDoorId = {12,30,858,886,1040,1294,1684,546,544}
 tilebreak = {}
 infoevent = {}
 infoseed = {}
@@ -427,8 +428,8 @@ setting.botinfo = function(content)
 			$payload = @{
 				content = "]]..content..[["
 			}
-            
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 			Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType "application/json"
 		]]
 		local file = io.popen("powershell -command -", "w")
@@ -512,7 +513,7 @@ setting.reconnect = function(world,id,x,y)
         sleep(4000)
     end
     if not getBot():isInWorld(world:upper()) and getBot().status == BotStatus.online then 
-        setting.botinfo("[ "..getBot().name.." ] at another world, trying to joining world again @everyone")
+        setting.botinfo("("..getBot().name..") at another world, trying to joining world again @everyone")
         local count = 0
         while not getBot():isInWorld(world:upper()) do
             getBot():sendPacket(3,"action|join_request\nname|"..world:upper().."\ninvitedWorld|0")
@@ -520,7 +521,7 @@ setting.reconnect = function(world,id,x,y)
             if not getBot():isInWorld(world:upper()) then 
                 count = count + 1
                 if count > 5 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to joining world again, terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to joining world again, terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -531,7 +532,7 @@ setting.reconnect = function(world,id,x,y)
                 getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
                 sleep(delaywarp)
                 if stucks > 3 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -542,15 +543,15 @@ setting.reconnect = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] success to joining world @everyone")
+        setting.botinfo("("..getBot().name..") success to joining world @everyone")
     end
     if getBot().status ~= BotStatus.online then
-        setting.botinfo("[ "..getBot().name.." ] status is offline @everyone")
+        setting.botinfo("("..getBot().name..") status is offline @everyone")
         while getBot().status ~= BotStatus.online do
             getBot():connect()
             sleep(delayreconnect)
             if getBot().status == BotStatus.account_banned then
-                setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                setting.botinfo("("..getBot().name..") status is suspended, removing bot @everyone")
                 getBot():stopScript()
             end
         end
@@ -561,7 +562,7 @@ setting.reconnect = function(world,id,x,y)
             if not getBot():isInWorld(world:upper()) then 
                 counts = counts + 1
                 if counts > 5 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to joining world again, terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to joining world again, terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -572,7 +573,7 @@ setting.reconnect = function(world,id,x,y)
                 getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
                 sleep(delaywarp)
                 if stuckk > 3 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -583,17 +584,17 @@ setting.reconnect = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] status is online @everyone")
+        setting.botinfo("("..getBot().name..") status is online @everyone")
     end
     if getTile(getBot().x,getBot().y).fg == 6 then
-        setting.botinfo("[ "..getBot().name.." ] Stuck at white door ! @everyone")
+        setting.botinfo("("..getBot().name..") Stuck at white door ! @everyone")
         local stuck = 0
         if id ~= "" then
             while getTile(getBot().x,getBot().y).fg == 6 do
                 getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
                 sleep(delaywarp)
                 if stuck > 3 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
                 end
             end
         end
@@ -603,7 +604,54 @@ setting.reconnect = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] Already back to pos ! @everyone")
+        setting.botinfo("("..getBot().name..") Already back to pos ! @everyone")
+    end
+    for idx, doorStuck in ipairs(stuckOnDoorId) do
+        if getTile(getBot().x,getBot().y).fg == doorStuck then
+            getBot():disconnect()
+            sleep(4000)
+            if getBot().status ~= BotStatus.online then
+                setting.botinfo("("..getBot().name..") stuck on door id, maybe sucks server?? @everyone")
+                while getBot().status ~= BotStatus.online do
+                    getBot():connect()
+                    sleep(delayreconnect)
+                    if getBot().status == BotStatus.account_banned then
+                        setting.botinfo("("..getBot().name..") status is suspended, removing bot @everyone")
+                        getBot():stopScript()
+                    end
+                end
+                local counts = 0
+                while not getBot():isInWorld(world:upper()) do
+                    getBot():sendPacket(3,"action|join_request\nname|"..world:upper().."\ninvitedWorld|0")
+                    sleep(delaywarp)
+                    if not getBot():isInWorld(world:upper()) then 
+                        counts = counts + 1
+                        if counts > 5 then
+                            setting.botinfo("("..getBot().name..") Failed to joining world again, terminated script @everyone")
+                            getBot():stopScript()
+                        end
+                    end
+                end
+                if id ~= "" then
+                    local stuckk = 0
+                    while getTile(getBot().x,getBot().y).fg == 6 do
+                        getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
+                        sleep(delaywarp)
+                        if stuckk > 3 then
+                            setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                            getBot():stopScript()
+                        end
+                    end
+                end
+                if x and y then
+                    while getBot().x ~= x or getBot().y ~= y do
+                        findPath(x,y)
+                        sleep(150)
+                    end
+                end
+                setting.botinfo("("..getBot().name..") Bot already back to pos @everyone")
+            end
+        end
     end
 end
 
@@ -613,7 +661,7 @@ setting.reconnect2 = function(world,id,x,y)
         sleep(4000)
     end
     if not getBot():isInWorld(world:upper()) and getBot().status == BotStatus.online then 
-        setting.botinfo("[ "..getBot().name.." ] at another world, trying to joining world again @everyone")
+        setting.botinfo("("..getBot().name..") at another world, trying to joining world again @everyone")
         local count = 0
         while not getBot():isInWorld(world:upper()) do
             getBot():sendPacket(3,"action|join_request\nname|"..world:upper().."\ninvitedWorld|0")
@@ -621,7 +669,7 @@ setting.reconnect2 = function(world,id,x,y)
             if not getBot():isInWorld(world:upper()) then 
                 count = count + 1
                 if count > 5 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to joining world again, terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to joining world again, terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -632,7 +680,7 @@ setting.reconnect2 = function(world,id,x,y)
                 getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
                 sleep(delaywarp)
                 if stucks > 3 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -643,15 +691,15 @@ setting.reconnect2 = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] success to joining world @everyone")
+        setting.botinfo("("..getBot().name..") success to joining world @everyone")
     end
     if getBot().status ~= BotStatus.online then
-        setting.botinfo("[ "..getBot().name.." ] status is offline @everyone")
+        setting.botinfo("("..getBot().name..") status is offline @everyone")
         while getBot().status ~= BotStatus.online do
             getBot():connect()
             sleep(delayreconnect)
             if getBot().status == BotStatus.account_banned then
-                setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                setting.botinfo("("..getBot().name..") status is suspended, removing bot @everyone")
                 getBot():stopScript()
             end
         end
@@ -662,7 +710,7 @@ setting.reconnect2 = function(world,id,x,y)
             if not getBot():isInWorld(world:upper()) then 
                 counts = counts + 1
                 if counts > 5 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to joining world again, terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to joining world again, terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -673,7 +721,7 @@ setting.reconnect2 = function(world,id,x,y)
                 getBot():sendPacket(3,"action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0")
                 sleep(delaywarp)
                 if stuckk > 3 then
-                    setting.botinfo("[ "..getBot().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    setting.botinfo("("..getBot().name..") Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
                     getBot():stopScript()
                 end
             end
@@ -684,7 +732,7 @@ setting.reconnect2 = function(world,id,x,y)
                 sleep(150)
             end
         end
-        setting.botinfo("[ "..getBot().name.." ] status is online @everyone")
+        setting.botinfo("("..getBot().name..") status is online @everyone")
     end
 end
 
@@ -842,7 +890,7 @@ setting.warp = function(world,door,cooldown)
                 getBot():connect()
                 sleep(delayreconnect)
                 if getBot().status == BotStatus.account_banned then
-                    setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                    setting.botinfo("("..getBot().name..") status is suspended, removing bot @everyone")
                     getBot():stopScript()
                 end
             end
@@ -865,7 +913,7 @@ setting.warp = function(world,door,cooldown)
                     getBot():connect()
                     sleep(delayreconnect)
                     if getBot().status == BotStatus.account_banned then
-                        setting.botinfo("[ "..getBot().name.." ] status is suspended, removing bot @everyone")
+                        setting.botinfo("("..getBot().name..") status is suspended, removing bot @everyone")
                         getBot():stopScript()
                     end
                 end
@@ -1045,8 +1093,8 @@ setting.support = function()
                     getBot():setDirection(true)
                     getBot():drop(iditemtowear,findItem(iditemtowear) - itemkeep)
                     sleep(500)
-                    print("["..indexbot.."][ "..getBot().name.." ] Success take and wear the support items!")
-                    setting.botinfo("[ "..getBot().name.." ] Success take and wear the support items!")
+                    print("["..indexbot.."]("..getBot().name..") Success take and wear the support items!")
+                    setting.botinfo("("..getBot().name..") Success take and wear the support items!")
                 else
                     print("["..indexbot.."]Support item is empty, Drop the support item right now!")
                     setting.botinfo("Support item is empty, Drop the support item right now! @everyone")
@@ -1087,13 +1135,13 @@ setting.storingevents = function(threads)
                 if not wrong then
                     if setting.itemFloat(eventList[1]) >= limitevent then
                         infoevent[world] = ""..setting.itemFloat(eventList[1]).."x (LIMIT)"
-                        setting.botinfo("Events storage : [ "..world.." ] has reached limit, skipped world @everyone")
-                        print("["..indexbot.."]Events storage : [ "..world.." ] has reached limit, skipped world")
+                        setting.botinfo("Events storage : ("..world..") has reached limit, skipped world @everyone")
+                        print("["..indexbot.."]Events storage : ("..world..") has reached limit, skipped world")
                         setting.event = setting.event + 1
                         if setting.event > #worldevent then
                             infoevent[world] = ""..setting.itemFloat(eventList[1]).."x (LIMIT)"
-                            setting.botinfo("All events storage has reached limit, Removing bot : [ "..getBot().name.." ] @everyone")
-                            print("["..indexbot.."]All events storage has reached limit, Removing bot : [ "..getBot().name.." ]")
+                            setting.botinfo("All events storage has reached limit, Removing bot : ("..getBot().name..") @everyone")
+                            print("["..indexbot.."]All events storage has reached limit, Removing bot : ("..getBot().name..")")
                             setting.webhookinfo()
                             if removingbot then
                                 removeBot()
@@ -1167,12 +1215,12 @@ setting.storingevents = function(threads)
                     infoevent[world] = "WRONG DOOR"
                     wrong = false
                     sleep(3000)
-                    print("["..indexbot.."][ "..world.." ] Id door events storage is wrong, check ur id door!")
-                    setting.botinfo("[ "..world.." ] Id door events storage is wrong, check ur id door! @everyone")
+                    print("["..indexbot.."]("..world..") Id door events storage is wrong, check ur id door!")
+                    setting.botinfo("("..world..") Id door events storage is wrong, check ur id door! @everyone")
                     setting.event = setting.event + 1
                     if setting.event > #worldevent then
                         print("["..indexbot.."]All events storage has reached limit")
-                        setting.botinfo("All events storage has reached limit! Removing bot : [ "..getBot().name.." ] @everyone")
+                        setting.botinfo("All events storage has reached limit! Removing bot : ("..getBot().name..") @everyone")
                         if removingbot then
                             removeBot()
                             sleep(2000)
@@ -1185,12 +1233,12 @@ setting.storingevents = function(threads)
                 infoevent[world] = "NUKED"
                 nuked = false
                 sleep(3000)
-                print("["..indexbot.."][ "..world.." ] event Storage is NUKED, check ur storage!")
-                setting.botinfo("[ "..world.." ] event Storage is NUKED, check ur storage! @everyone")
+                print("["..indexbot.."]("..world..") event Storage is NUKED, check ur storage!")
+                setting.botinfo("("..world..") event Storage is NUKED, check ur storage! @everyone")
                 setting.event = setting.event + 1
                 if setting.event > #worldevent then
                     print("["..indexbot.."]All events storage has reached limit!")
-                    setting.botinfo("All events storage has reached limit! Removing bot : [ "..getBot().name.." ] @everyone")
+                    setting.botinfo("All events storage has reached limit! Removing bot : ("..getBot().name..") @everyone")
                     if removingbot then
                         removeBot()
                         sleep(2000)
@@ -1226,13 +1274,13 @@ setting.storingpacks = function()
                 if not wrong then
                     if setting.itemFloat(packList[1]) >= limitpack then
                         infopack[world] = ""..setting.itemFloat(packList[1]).."x (LIMIT)"
-                        setting.botinfo("Packs storage : [ "..world.." ] has reached limit, skipped world @everyone")
-                        print("["..indexbot.."]Packs storage : [ "..world.." ] has reached limit, skipped world")
+                        setting.botinfo("Packs storage : ("..world..") has reached limit, skipped world @everyone")
+                        print("["..indexbot.."]Packs storage : ("..world..") has reached limit, skipped world")
                         setting.pack = setting.pack + 1
                         if setting.pack > #worldpack then
                             infopack[world] = ""..setting.itemFloat(packList[1]).."x (LIMIT)"
-                            setting.botinfo("All packs storage has reached limit, Removing bot : [ "..getBot().name.." ] @everyone")
-                            print("["..indexbot.."]All packs storage has reached limit, Removing bot : [ "..getBot().name.." ]")
+                            setting.botinfo("All packs storage has reached limit, Removing bot : ("..getBot().name..") @everyone")
+                            print("["..indexbot.."]All packs storage has reached limit, Removing bot : ("..getBot().name..")")
                             setting.webhookinfo()
                             if removingbot then
                                 removeBot()
@@ -1306,12 +1354,12 @@ setting.storingpacks = function()
                     infopack[world] = "WRONG DOOR"
                     wrong = false
                     sleep(3000)
-                    print("["..indexbot.."][ "..world.." ] Id door packs storage is wrong, check ur id door!")
-                    setting.botinfo("[ "..world.." ] Id door packs storage is wrong, check ur id door! @everyone")
+                    print("["..indexbot.."]("..world..") Id door packs storage is wrong, check ur id door!")
+                    setting.botinfo("("..world..") Id door packs storage is wrong, check ur id door! @everyone")
                     setting.pack = setting.pack + 1
                     if setting.pack > #worldpack then
                         print("["..indexbot.."]All packs storage has reached limit")
-                        setting.botinfo("All packs storage has reached limit! Removing bot : [ "..getBot().name.." ] @everyone")
+                        setting.botinfo("All packs storage has reached limit! Removing bot : ("..getBot().name..") @everyone")
                         if removingbot then
                             removeBot()
                             sleep(2000)
@@ -1324,12 +1372,12 @@ setting.storingpacks = function()
                 infopack[world] = "NUKED"
                 nuked = false
                 sleep(3000)
-                print("["..indexbot.."][ "..world.." ] packs Storage is NUKED, check ur storage!")
-                setting.botinfo("[ "..world.." ] packs Storage is NUKED, check ur storage! @everyone")
+                print("["..indexbot.."]("..world..") packs Storage is NUKED, check ur storage!")
+                setting.botinfo("("..world..") packs Storage is NUKED, check ur storage! @everyone")
                 setting.pack = setting.pack + 1
                 if setting.pack > #worldpack then
                     print("["..indexbot.."]All packs storage has reached limit!")
-                    setting.botinfo("All packs storage has reached limit! Removing bot : [ "..getBot().name.." ] @everyone")
+                    setting.botinfo("All packs storage has reached limit! Removing bot : ("..getBot().name..") @everyone")
                     if removingbot then
                         removeBot()
                         sleep(2000)
@@ -1375,13 +1423,13 @@ setting.storingseeds = function(info,seedid)
                 if not wrong then
                     if setting.itemFloat(seed) >= limitseed then
                         infoseed[world] = ""..setting.itemFloat(seed).."x (LIMIT)"
-                        setting.botinfo("Seeds storage : [ "..world.." ] has reached limit, skipped world @everyone")
-                        print("["..indexbot.."]Seeds storage : [ "..world.." ] has reached limit, skipped world")
+                        setting.botinfo("Seeds storage : ("..world..") has reached limit, skipped world @everyone")
+                        print("["..indexbot.."]Seeds storage : ("..world..") has reached limit, skipped world")
                         setting.seed = setting.seed + 1
                         if setting.seed > #worldseed then
                             infoseed[world] = ""..setting.itemFloat(seed).."x (LIMIT)"
-                            setting.botinfo("All seeds storage has reached limit, Removing bot : [ "..getBot().name.." ] @everyone")
-                            print("["..indexbot.."]All seeds storage has reached limit, Removing bot : [ "..getBot().name.." ] @everyone")
+                            setting.botinfo("All seeds storage has reached limit, Removing bot : ("..getBot().name..") @everyone")
+                            print("["..indexbot.."]All seeds storage has reached limit, Removing bot : ("..getBot().name..") @everyone")
                             setting.webhookinfo()
                             if removingbot then
                                 removeBot()
@@ -1425,8 +1473,8 @@ setting.storingseeds = function(info,seedid)
                     infoseed[world] = "WRONG DOOR"
                     wrong = false
                     sleep(3000)
-                    print("["..indexbot.."][ "..world.." ] Id door seeds storage is wrong, check ur id door!")
-                    setting.botinfo("[ "..world.." ] Id door seeds storage is wrong, check ur id door! @everyone")
+                    print("["..indexbot.."]("..world..") Id door seeds storage is wrong, check ur id door!")
+                    setting.botinfo("("..world..") Id door seeds storage is wrong, check ur id door! @everyone")
                     setting.seed = setting.seed + 1
                     if setting.seed > #worldseed then
                         print("["..indexbot.."]All seeds storage has reached limit")
@@ -1443,8 +1491,8 @@ setting.storingseeds = function(info,seedid)
                 infoseed[world] = "NUKED"
                 nuked = false
                 sleep(3000)
-                print("["..indexbot.."][ "..world.." ] seeds Storage is NUKED, check ur storage!")
-                setting.botinfo("[ "..world.." ] seeds Storage is NUKED, check ur storage! @everyone")
+                print("["..indexbot.."]("..world..") seeds Storage is NUKED, check ur storage!")
+                setting.botinfo("("..world..") seeds Storage is NUKED, check ur storage! @everyone")
                 setting.seed = setting.seed + 1
                 if setting.seed > #worldseed then
                     print("["..indexbot.."]All seeds storage has reached limit!")
@@ -1593,7 +1641,7 @@ setting.banning = function()
     end
 end
 
-local network = math.random(3,50)
+network = math.random(3,50)
 setting.rotate = function(info,static,blockid)
     ::BACK::
     print("["..indexbot.."]Pnb")
@@ -1732,12 +1780,12 @@ setting.rotate = function(info,static,blockid)
                             if getTile(botX + 1,botY).bg ~= 0 or getTile(botX + 1, botY).fg ~= 0 then
                                 punch(1,0)
                                 sleep(delaypunch)
-                                setting.reconnect2(find,"",posX,posY)
+                                setting.reconnect(find,"",posX,posY)
                             end
                             if getTile(botX+ 1,botY).bg == 0 or getTile(botX+ 1, botY).fg == 0 then
                                 place(blockid,1,0)
                                 sleep(delayplace)
-                                setting.reconnect2(find,"",posX,posY)
+                                setting.reconnect(find,"",posX,posY)
                             end
                             sleep(320)
                             collect(2)
@@ -1780,7 +1828,7 @@ setting.rotate = function(info,static,blockid)
                                     if getTile(botX + 1,botY + i).fg == 0 and getTile(botX + 1,botY + i).bg == 0 then
                                         place(blockid,1,i)
                                         sleep(delayplace)
-                                        setting.reconnect2(find,"",posX,posY)
+                                        setting.reconnect(find,"",posX,posY)
                                     end
                                 end
                             end
@@ -1789,7 +1837,7 @@ setting.rotate = function(info,static,blockid)
                                     if getTile(botX + 1,botY + i).fg ~= 0 or getTile(botX + 1,botY + i).bg ~= 0 then
                                         punch(1,i)
                                         sleep(delaypunch)
-                                        setting.reconnect2(find,"",posX,posY)
+                                        setting.reconnect(find,"",posX,posY)
                                     end
                                 end
                             end
@@ -2441,7 +2489,7 @@ setting.harvest = function(threads)
                     setting.reconnect(threads,doorfarm,x,y)
                 end
                 if root then
-                    while getTile(getBot().x,getBot().y-1).fg == (block + 4) and getTile(x,y).flags ~= 0 do
+                    while getTile(getBot().x,getBot().y-1).fg == (block + 4) do
                         punch(0, 1)
                         sleep(delayharvest)
                         setting.reconnect(threads,doorfarm,x,y)
@@ -3154,13 +3202,13 @@ setting.lepel = function()
                     wrong = false
                     sleep(3000)
                     print(""..annount.." is wrong door id, skipped world")
-                    setting.botinfo("[ "..annount.." ] is wrong door id, skipped world @everyone")
+                    setting.botinfo("("..annount..") is wrong door id, skipped world @everyone")
                 end
             else
                 nuked = false
                 sleep(3000)
                 print(""..value.." is NUKED!, check ur world !!")
-                setting.botinfo("[ "..annount.." ] is NUKED!, check ur world !! @everyone")
+                setting.botinfo("("..annount..") is NUKED!, check ur world !! @everyone")
             end
         else
             subserver = false
@@ -3242,28 +3290,28 @@ setting.antiToxic = function(threads)
         sleep(500)
         punch(0,-1)
         sleep(200)
-        setting.reconnect(threads,doorfarm,98,1)
+        setting.reconnect2(threads,doorfarm,98,1)
     end
     while getTile(99,0).fg == 778 do
         findPath(98,1)
         sleep(500)
         punch(1,-1)
         sleep(200)
-        setting.reconnect(threads,doorfarm,98,1)
+        setting.reconnect2(threads,doorfarm,98,1)
     end
     while getTile(0,0).fg == 778 do
         findPath(1,1)
         sleep(500)
         punch(-1,-1)
         sleep(200)
-        setting.reconnect(threads,doorfarm,1,1)
+        setting.reconnect2(threads,doorfarm,1,1)
     end
     while getTile(1,0).fg == 778 do
         findPath(1,1)
         sleep(500)
         punch(0,-1)
         sleep(200)
-        setting.reconnect(threads,doorfarm,1,1)
+        setting.reconnect2(threads,doorfarm,1,1)
     end
     for y = 0,53 do
         if getTile(0,y).fg == 778 then
@@ -3272,18 +3320,18 @@ setting.antiToxic = function(threads)
                 sleep(100)
                 punch(0,1)
                 sleep(170)
-                setting.reconnect(threads,doorfarm,0,y-1)
+                setting.reconnect2(threads,doorfarm,0,y-1)
             end
         end
     end
     for x = 2, 97 do
         if getTile(x,0).fg == 778 then
             while getTile(x,0).fg == 778 do
-                findPath(x,1)
+                findPath(x-1,0)
                 sleep(100)
-                punch(0,-1)
+                punch(1,0)
                 sleep(170)
-                setting.reconnect(threads,doorfarm,x,1)
+                setting.reconnect2(threads,doorfarm,x-1,0)
             end
         end
     end
@@ -3294,7 +3342,7 @@ setting.antiToxic = function(threads)
                 sleep(100)
                 punch(1,0)
                 sleep(170)
-                setting.reconnect(threads,doorfarm,x-1,1)
+                setting.reconnect2(threads,doorfarm,x-1,1)
             end
         end
     end
@@ -3305,7 +3353,7 @@ setting.antiToxic = function(threads)
                 sleep(100)
                 punch(0,1)
                 sleep(170)
-                setting.reconnect(threads,doorfarm,99,y-1)
+                setting.reconnect2(threads,doorfarm,99,y-1)
             end
         end
     end
@@ -3321,7 +3369,7 @@ setting.antiToxic = function(threads)
                     sleep(100)
                     punch(0,2)
                     sleep(160)
-                    setting.reconnect(threads,doorfarm,x,y-2)
+                    setting.reconnect2(threads,doorfarm,x,y-2)
                 end
             end
         end
@@ -3362,14 +3410,14 @@ setting.antiFire = function(threads)
                 if getTile(tile.x,tile.y + 1).flags ~= 0 then
                     getBot():findPath(tile.x,tile.y + 1)
                     sleep(100)
-                    setting.reconnect(threads,doorfarm,tile.x,tile.y + 1)
+                    setting.reconnect2(threads,doorfarm,tile.x,tile.y + 1)
                     if getTile(t,r+1).fg ~= 4096 then
                         for x = -2, 2 do
                             for y = -2 , 2 do
                                 if getTile(t+x,r+y).fg ~= 4096 then
                                     punch(x,y)
                                     sleep(250)
-                                    setting.reconnect(threads,doorfarm,tile.x,tile.y + 1)
+                                    setting.reconnect2(threads,doorfarm,tile.x,tile.y + 1)
                                 end
                             end
                         end
@@ -3377,14 +3425,14 @@ setting.antiFire = function(threads)
                 elseif getTile(tile.x,tile.y - 1).flags ~= 0 then
                     getBot():findPath(tile.x,tile.y - 1)
                     sleep(100)
-                    setting.reconnect(threads,doorfarm,tile.x,tile.y - 1)
+                    setting.reconnect2(threads,doorfarm,tile.x,tile.y - 1)
                     if getTile(t,r-1).fg ~= 4096 then
                         for x = -2, 2 do
                             for y = -2 , 2 do
                                 if getTile(t+x,r+y).fg ~= 4096 then
                                     punch(x,y)
                                     sleep(250)
-                                    setting.reconnect(threads,doorfarm,tile.x,tile.y - 1)
+                                    setting.reconnect2(threads,doorfarm,tile.x,tile.y - 1)
                                 end
                             end
                         end
@@ -3392,14 +3440,14 @@ setting.antiFire = function(threads)
                 elseif getTile(tile.x + 1,tile.y).flags ~= 0 then
                     getBot():findPath(tile.x + 1,tile.y)
                     sleep(100)
-                    setting.reconnect(threads,doorfarm,tile.x + 1,tile.y)
+                    setting.reconnect2(threads,doorfarm,tile.x + 1,tile.y)
                     if getTile(t+1,r).fg ~= 4096 then
                         for x = -2, 2 do
                             for y = -2 , 2 do
                                 if getTile(t+x,r+y).fg ~= 4096 then
                                     punch(x,y)
                                     sleep(250)
-                                    setting.reconnect(threads,doorfarm,tile.x + 1,tile.y)
+                                    setting.reconnect2(threads,doorfarm,tile.x + 1,tile.y)
                                 end
                             end
                         end
@@ -3407,14 +3455,14 @@ setting.antiFire = function(threads)
                 elseif getTile(tile.x - 1,tile.y).flags ~= 0 then
                     getBot():findPath(tile.x - 1,tile.y)
                     sleep(100)
-                    setting.reconnect(threads,doorfarm,tile.x - 1,tile.y)
+                    setting.reconnect2(threads,doorfarm,tile.x - 1,tile.y)
                     if getTile(t-1,r).fg ~= 4096 then
                         for x = -2, 2 do
                             for y = -2 , 2 do
                                 if getTile(t+x,r+y).fg ~= 4096 then
                                     punch(x,y)
                                     sleep(250)
-                                    setting.reconnect(threads,doorfarm,tile.x - 1,tile.y)
+                                    setting.reconnect2(threads,doorfarm,tile.x - 1,tile.y)
                                 end
                             end
                         end
@@ -3621,7 +3669,7 @@ setting.algorithm = function()
     getBot().auto_collect = false
 end
 
-if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq" then
+if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq" and scriptVersion == "0.2" then
     if autologin and not indexbot then
         setting.setauth()
         setting.main()
@@ -3771,18 +3819,18 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
                         else
                             wrong = false
                             sleep(3000)
-                            setting.writeFile("worldinfo","[ "..value.." ] is wrong id")
+                            setting.writeFile("worldinfo","("..value..") is wrong id")
                             sleep(1000)
                             print("["..indexbot.."]"..value.." is wrong door id, skipped world")
-                            setting.botinfo("[ "..value.." ] is wrong door id, skipped world @everyone")
+                            setting.botinfo("("..value..") is wrong door id, skipped world @everyone")
                         end
                     else
                         nuked = false
                         sleep(3000)
-                        setting.writeFile("worldinfo","[ "..value.." ] is NUKED !!")
+                        setting.writeFile("worldinfo","("..value..") is NUKED !!")
                         sleep(1000)
                         print("["..indexbot.."]"..value.." is NUKED!, check ur world !!")
-                        setting.botinfo("[ "..value.." ] is NUKED!, check ur world !! @everyone")
+                        setting.botinfo("("..value..") is NUKED!, check ur world !! @everyone")
                     end
                 else
                     subserver = false
@@ -3832,10 +3880,10 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
                             end
                         else
                             nuked = false
-                            setting.writeFile("worldinfo","[ "..find.." ] is NUKED !!")
+                            setting.writeFile("worldinfo","("..find..") is NUKED !!")
                             sleep(1000)
                             print("["..indexbot.."]"..find.." is NUKED!, check ur world !!")
-                            setting.botinfo("[ "..find.." ] is NUKED!, check ur world !! @everyone")
+                            setting.botinfo("("..find..") is NUKED!, check ur world !! @everyone")
                         end
                     else
                         subserver = false
@@ -3848,7 +3896,7 @@ if Information == "Script Rotation made by Caramoy's Syndicate, Link Discord : h
                 end
                 setting.warp(find,"",delaywarp)
                 print("["..indexbot.."]Already finished all world")
-                setting.botinfo("[ "..getBot().name.." ] Already finished all world, Terminated script! @everyone")
+                setting.botinfo("("..getBot().name..") Already finished all world, Terminated script! @everyone")
                 if removingbot then
                     removeBot()
                     sleep(1500)
