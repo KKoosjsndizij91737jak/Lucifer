@@ -1641,7 +1641,7 @@ setting.banning = function()
     end
 end
 
-findRandom = math.random(3,50)
+local findRandom = math.random(3,50)
 setting.rotate = function(info,static,blockid)
     ::BACK::
     print("["..indexbot.."]Pnb")
