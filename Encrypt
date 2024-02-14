@@ -1740,23 +1740,7 @@ customizable.recheckWorld = function(threads)
             end
         end
         if not dontplant then
-            for y = 0, 53, 1 do
-                for x = 0, 99, 1 do
-                    if getTile(x,y).fg == 0 and getTile(x,y).flags ~= 0 and getBot():getInventory():getItemCount(pointData) ~= 0 then
-                        if getBot():getInventory():getItemCount(pointData) == 0 then
-                            break
-                        end
-                        getBot():findPath(x,y)
-                        sleep(30)
-                        customizable.reconnect(threads,doorfarm,x,y)
-                        if getTile(x,y) ~= seed then
-                            place(x,y,pointData)
-                            sleep(delayplant)
-                            customizable.reconnect(threads,doorfarm,x,y)
-                        end
-                    end
-                end
-            end
+            customizable.plant(threads,doorfarm,pointData)
         end
     end
 end
@@ -1808,23 +1792,7 @@ customizable.onLevelingCheck = function(params)
                     end
                 end
             end
-            for y = 0, 53, 1 do
-                for x = 0, 99, 1 do
-                    if getTile(x,y).fg == 0 and getTile(x,y).flags ~= 0 then
-                        getBot():findPath(x,y)
-                        sleep(30)
-                        customizable.reconnect(params,doorworldleveling,x,y)
-                        if getTile(x,y).fg ~= idblockleveling+1 then
-                            place(x,y,idblockleveling+1)
-                            sleep(delayplant)
-                            customizable.reconnect(params,doorworldleveling,x,y)
-                        end
-                    end
-                    if getBot():getInventory():getItemCount(idblockleveling+1) == 0 then
-                        break
-                    end
-                end
-            end
+            customizable.plant(params,doorworldleveling,idblockleveling+1)
             if getBot():getInventory():getItemCount(idblockleveling+1) >= amountseed then
                 customizable.onSeed(params,idblockleveling+1)
                 print("["..pcallBot.."]Leveling Recheck")
