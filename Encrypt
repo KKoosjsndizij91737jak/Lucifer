@@ -1681,7 +1681,7 @@ customizable.recheckWorld = function(threads)
                     getBot():findPath(x,y)
                     sleep(30)
                     customizable.reconnect(threads,doorfarm,x,y)
-                    if getTile(x,y) == pointData then
+                    if getTile(x,y).fg == pointData then
                         punch(0,0)
                         sleep(delayharvest)
                         customizable.reconnect(threads,doorfarm,x,y)
