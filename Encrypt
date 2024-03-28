@@ -872,7 +872,7 @@ customizable.textInfo = function(str,alphabet)
     customizable.initializeBots('('..string.upper(bot.name)..') '..alphabet)
     if str == 'stop' then
         customizable.notifications(string.upper(bot.name)..' : '..alphabet)
-        bot:stopScript()
+        error(alphabet)
     end
 end
 
