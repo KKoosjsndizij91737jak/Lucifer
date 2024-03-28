@@ -1038,7 +1038,7 @@ customizable.warp = function(world,door)
             end
             bot:warp(name)
             listenEvents(4)
-            sleep(delaywarp)
+            sleep(delaywarp * 1000)
             count = count + 1
             if count == 5 then
                 count = 0
