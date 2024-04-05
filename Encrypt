@@ -78,7 +78,7 @@ local events = {
             unlistenEvents()
         end
     end,
-    onTutorial = function(variant,netid)
+    onTutorial = function(var,netid)
         if var:get(0):getString() == 'OnDialogRequest' then
             if var:get(1):getString():find('myWorldsUiTab') then
                 table.insert(tutorial,var:get(1):getString():match('add_button|(%w+)|'))
