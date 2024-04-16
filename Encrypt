@@ -181,13 +181,17 @@ scanBlock = function(id)
 end
 
 isPlanted = function(ex,ye)
-    includes = getTile(ex, ye+1)
-    classType = getInfo(includes.fg).collision_type
-    return getTile(ex,ye).fg == 0 and (classType ~= 0 and classType <= 3) and includes.fg ~= 0 and bot:getWorld():hasAccess(ex,ye)
+    if bot:isInWorld() then
+        includes = getTile(ex, ye+1)
+        classType = getInfo(includes.fg).collision_type
+        return getTile(ex,ye).fg == 0 and (classType ~= 0 and classType <= 3) and includes.fg ~= 0 and bot:getWorld():hasAccess(ex,ye) ~= 0
+    end
 end 
 
 isHarvested = function(ex,ye,itm)
-    return getTile(ex,ye).fg == itm and getTile(ex,ye):canHarvest() and bot:getWorld():hasAccess(ex,ye) ~= 0 and not getTile(ex,ye):hasFlag(4096)
+    if bot:isInWorld() then
+        return getTile(ex,ye).fg == itm and getTile(ex,ye):canHarvest() and bot:getWorld():hasAccess(ex,ye) ~= 0 and not getTile(ex,ye):hasFlag(4096)
+    end
 end
 
 detectTable = function(items,amt)
@@ -748,7 +752,7 @@ warp = function(world,door)
             count = count + 1
             if count == 15 then
                 count = 0
-                textInfo('',': Maybe hard warp?, disconnecting bot and sleeping for '..delayidiotserver..' minutes')
+                textInfo('','Maybe hard warp?, disconnecting bot and sleeping for '..delayidiotserver..' minutes')
                 bot:disconnect()
                 sleep(delayidiotserver * 60000)
             end
@@ -1548,10 +1552,20 @@ onPnb = function(worlds,doors,item)
             local detect = splitPattern(worldJammer[reversed],'[^|]+')[1]
             if #tutorial == 0 then
                 if detect ~= 'x' then
-                    while inventory:getItemCount(226) == 0 do
-                        aboutJammer('take')
+                    if bot.gem_count >= 2000 and inventory:getItemCount(226) == 0 then
+                        printed:append('Buying jammer for a new world')
+                        repeat
+                            bot:sendPacket(2,'action|buy\nitem|signal_jammer')
+                            sleep(1000)
+                        until inventory:getItemCount(226) >= 1
+                    else
+                        while inventory:getItemCount(226) == 0 do
+                            aboutJammer('take')
+                        end
                     end
                     createWorld('tutorial')
+                else
+                    textInfo('stop','World PNB : '..val..' is NUKED, Script terminated.')
                 end
             end
             for i = #tutorial, 1, -1 do
@@ -1623,8 +1637,15 @@ onPnb = function(worlds,doors,item)
                 end
             else
                 if #initFreshWorld == 0 then
-                    while inventory:getItemCount(226) == 0 do
-                        aboutJammer('take')
+                    if bot.gem_count >= 2000 and inventory:getItemCount(226) == 0 then
+                        repeat
+                            bot:sendPacket(2,'action|buy\nitem|signal_jammer')
+                            sleep(1000)
+                        until inventory:getItemCount(226) >= 1
+                    else
+                        while inventory:getItemCount(226) == 0 do
+                            aboutJammer('take')
+                        end
                     end
                     createWorld('for pnb')
                 end
