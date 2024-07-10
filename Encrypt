@@ -1,3 +1,4 @@
+math.randomseed(os.time() + os.clock() * 100000)
 local bot = getBot()
 local inventory = getBot():getInventory()
 local printed = getBot():getLog()
@@ -14,6 +15,7 @@ local initialize = {}
 local FreshWorld = {}
 local indexPnb = {}
 local initFreshWorld = {}
+local msg = {}
 
 for i = 1, worldLetter do
     strGenerate = strGenerate .. string.char(math.random(97, 122))
@@ -43,7 +45,6 @@ local customizable = {
     variableEvents = 0, 
     indexBackups = 1, 
     indexFresh = 1, 
-    changeWorld = 1, 
     formatTime = os.time(), 
     lock = {242, 9640, 202, 204, 206, 1796, 4994, 7188, 2408, 2950, 4428, 4802, 5814, 5260, 5980, 8470, 10410, 11550, 11586 }, 
     notTrashItems = {18, 32, 6336, 9640, block, seeds, idblockleveling, idblockleveling + 1, idItemSupport}
@@ -54,8 +55,7 @@ local events = {
         if variant:get(0):getString() == 'OnConsoleMessage' then
             if variant:get(1):getString():lower():find('inaccessible.') or variant:get(1):getString():lower():find('unknown reason.') then
                 nuked = true
-            end
-            if variant:get(1):getString():lower():find('created too many worlds') or variant:get(1):getString():lower():find('unknown reason.') then
+            elseif variant:get(1):getString():lower():find('created too many worlds') or variant:get(1):getString():lower():find('unknown reason.') then
                 maxfind = true
             end
             unlistenEvents()
@@ -81,17 +81,6 @@ end
 backpack = function(item)
     return inventory:getItemCount(item)
 end
-
--- credit by Hitoari
-createMessage = function(webhookUrl)
-    local sendWebhook = string.format('powershell -Command "$webhookUrl=\'%s\';$originalMessageContent=\'%s\';$jsonPayload=@{content=$originalMessageContent} | ConvertTo-Json;$response=Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $jsonPayload -ContentType \'application/json\';$response.id"', webhookUrl .. "?wait=true", "Creating message id for bot - " .. bot.index)
-    local getMessageId = io.popen(sendWebhook):read('*a'):match('%s*(.-)%s*$')
-    local editCommand = string.format('powershell -Command "$editUrl=\'%s\';$editedMessageContent=\'%s\';$jsonPayload=@{content=$editedMessageContent} | ConvertTo-Json;$editResponse=Invoke-RestMethod -Uri $editUrl -Method Patch -Body $jsonPayload -ContentType \'application/json\';$editResponse.id"', string.format("%s/messages/%s", webhookUrl, getMessageId), getMessageId)
-    local editedMessageId = io.popen(editCommand):read('*a'):match('%s*(.-)%s*$')
-    return getMessageId
-end
-
-local messages = createMessage(linkbotinfo)
 
 tileValue = function(types, tbl)
     for i = math.floor(types/2), 1, - 1 do
@@ -401,7 +390,7 @@ end
 countFloating = function(itm)
     local count = 0
     for _, obj in pairs(bot:getWorld():getObjects()) do
-        if obj.id == itm and #getBot():getPath(math.floor(obj.x / 32), math.floor(obj.y / 32)) ~= 0 then
+        if obj.id == itm and (#getBot():getPath(math.floor(obj.x / 32), math.floor(obj.y / 32)) ~= 0) then
             count = count + obj.count
         end
     end
@@ -454,6 +443,64 @@ if takeBackJammer then
 end
 
 spreadWorld(farmFile, onFarmList)
+
+createMessageID = function(url, content)
+    if url ~= '' then
+        url = url .. '?wait=1'
+        local http = HttpClient.new()
+        http.url = url
+        http.headers['Content-Type'] = 'application/json'
+        http:setMethod(Method.post)
+        http.content = [[
+        {
+            "username":"Caramoy",
+            "embeds": [
+                {
+                    "title":"]] .. content .. [[",
+                    "color": ]] .. math.random(111111, 999999) .. [[
+                }
+            ]
+        }
+    ]]
+        local result = http:request()
+        if result.error == 0 then
+            local resultData = result.body:match('"id"%s*:%s*"([^"]+)"')
+            if resultData then
+                writeFile('Bot Messages.txt', resultData)
+            end
+            return resultData
+        else
+            print("Request Error: " .. result:getError())
+        end
+        return nil
+    end
+    return nil
+end
+
+fileExists = function(fileName)
+    local file = io.open(fileName, "r")
+    if file then
+        file:close()
+        return true
+    else
+        return false
+    end
+end
+
+deleteFile = function(fileName)
+    local result, reason = os.remove(fileName)
+    if result then
+        print(fileName .. " was deleted successfully.")
+    else
+        print("Error deleting " .. fileName .. ": " .. reason)
+    end                                                                                                             
+end
+
+local fileName = "Bot Messages.txt"
+
+if fileExists(fileName) then
+    deleteFile(fileName)
+end
 
 clientStatic = function()
     local statusMap = {
@@ -565,32 +612,34 @@ end
 
 localInfo = function(info)
 	if linkbotinfo ~= 'x' then 
-        realtime = os.time() - customizable.formatTime
-        webhook = Webhook.new(linkbotinfo)
-        webhook.embed1.use = true
-        webhook.embed2.use = true
-        webhook.content = 'Caramoy | Message Bot - ' .. bot.index
-        webhook.embed1.thumbnail = 'https://cdn.discordapp.com/attachments/1222249842387193876/1224708077262082068/Hnet.com-image.jpg?ex=661e7947&is=660c0447&hm=e692ab165629d6a84ca2661b5b4a75f97a23cfabb98983fda3270bc2be0e7474&'
-        webhook.embed1.color = math.random(111111, 999999)
-        webhook.embed1.title = 'BOT - ' .. bot.index .. ' | Lucifer Rotation'
-        webhook.embed1:addField("Bot Task", info, false)
-        webhook.embed1:addField("Bot Name", '(' .. bot.level .. ')' .. string.upper(bot.name), true)
-        webhook.embed1:addField("Bot Gems", bot.gem_count, true)
-        webhook.embed1:addField('Bot Current', string.upper(getWorld().name), true)
-        webhook.embed1:addField('Bot Status', clientStatic(), true)
-        webhook.embed1:addField('Bot Age', bot:getAge() .. ' Days', true)
-        webhook.embed1:addField('Bot Uptime', math.floor(realtime/86400) .. ':' .. math.floor(realtime%86400/3600) .. ':' .. math.floor(realtime%86400%3600/60) .. '', true)
-        webhook.embed1:addField('Total Bots', #getBots(), true)
-        webhook.embed1:addField('Total Offline', countStatus('offline'), true)
-        webhook.embed1:addField('Total Banned', countStatus('banned'), true)
-        webhook.embed1:addField('Seed', globalInfo('seed'), true)
-        webhook.embed1:addField('Pack', globalInfo('pack'), true)
-        webhook.embed1:addField('Event', globalInfo('event'), true)
-        webhook.embed2:addField('Farm Estimates', strFormatted, true)
-        webhook.embed2:addField('Bot Switch', globalInfo('switch'), true)
-        webhook.embed2.footer.icon_url = 'https://cdn.discordapp.com/attachments/1222249842387193876/1224708077706543236/1712025730898.jpg?ex=661e7947&is=660c0447&hm=3be9efe2f0f23456f272149dc0844db884cee12f3b21199b35b2c1287c77a8f2&'
-        webhook.embed2.footer.text = 'Updated : ' .. (os.date('!%a, %b %d %Y at %I:%M %p', os.time() + 7 * 60 * 60)) .. '.\nDeveloped By Caramoy and Made With Luv<3.'
-        webhook:edit(messages)
+        for _, messages in pairs(msg) do
+            realtime = os.time() - customizable.formatTime
+            webhook = Webhook.new(linkbotinfo)
+            webhook.embed1.use = true
+            webhook.embed2.use = true
+            webhook.content = 'Caramoy | Message Bot - ' .. bot.index
+            webhook.embed1.thumbnail = 'https://cdn.discordapp.com/attachments/1222249842387193876/1224708077262082068/Hnet.com-image.jpg?ex=661e7947&is=660c0447&hm=e692ab165629d6a84ca2661b5b4a75f97a23cfabb98983fda3270bc2be0e7474&'
+            webhook.embed1.color = math.random(111111, 999999)
+            webhook.embed1.title = 'BOT - ' .. bot.index .. ' | Lucifer Rotation'
+            webhook.embed1:addField("Bot Task", info, false)
+            webhook.embed1:addField("Bot Name", '(' .. bot.level .. ')' .. string.upper(bot.name), true)
+            webhook.embed1:addField("Bot Gems", bot.gem_count, true)
+            webhook.embed1:addField('Bot Current', string.upper(getWorld().name), true)
+            webhook.embed1:addField('Bot Status', clientStatic(), true)
+            webhook.embed1:addField('Bot Age', bot:getAge() .. ' Days', true)
+            webhook.embed1:addField('Bot Uptime', math.floor(realtime/86400) .. ':' .. math.floor(realtime%86400/3600) .. ':' .. math.floor(realtime%86400%3600/60) .. '', true)
+            webhook.embed1:addField('Total Bots', #getBots(), true)
+            webhook.embed1:addField('Total Offline', countStatus('offline'), true)
+            webhook.embed1:addField('Total Banned', countStatus('banned'), true)
+            webhook.embed1:addField('Seed', globalInfo('seed'), true)
+            webhook.embed1:addField('Pack', globalInfo('pack'), true)
+            webhook.embed1:addField('Event', globalInfo('event'), true)
+            webhook.embed2:addField('Farm Estimates', strFormatted, true)
+            webhook.embed2:addField('Bot Switch', globalInfo('switch'), true)
+            webhook.embed2.footer.icon_url = 'https://cdn.discordapp.com/attachments/1222249842387193876/1224708077706543236/1712025730898.jpg?ex=661e7947&is=660c0447&hm=3be9efe2f0f23456f272149dc0844db884cee12f3b21199b35b2c1287c77a8f2&'
+            webhook.embed2.footer.text = 'Updated : ' .. (os.date('!%a, %b %d %Y at %I:%M %p', os.time() + 7 * 60 * 60)) .. '.\nDeveloped By Caramoy and Made With Luv<3.'
+            webhook:edit(messages)
+        end
     end
 end
 
@@ -1533,9 +1582,8 @@ onPnb = function(worlds, doors, item)
         end
     else
         if pnbOnTutorial then
-            local detect = splitPattern(worldJammer[reversed], '[^|]+')[1]
             if #tutorial == 0 then
-                if detect ~= 'x' then
+                if splitPattern(worldJammer[reversed], '[^|]+')[1] ~= 'x' then
                     if bot.gem_count >= 2000 and inventory:getItemCount(226) == 0 then
                         printed:append('Buying jammer for a new world')
                         repeat
@@ -1553,7 +1601,7 @@ onPnb = function(worlds, doors, item)
                 end
             end
             for i = #tutorial, 1, -1 do
-                local val = tutorial[i]
+                val = tutorial[i]
                 warp(val, '', delaywarp * 1000)
                 if not nuked then
                     customPnb(val, '', item, customBreakX, customBreakY)
@@ -1935,8 +1983,8 @@ end
 botOnLeveling = function()
     while true do
         for i, worldList in pairs(onLeveling) do
-            local world = splitPattern(worldList, '[^|]+')[1]
-            local door = splitPattern(worldList, '[^|]+')[2]
+            world = splitPattern(worldList, '[^|]+')[1]
+            door = splitPattern(worldList, '[^|]+')[2]
             warp(world, door, delaywarp * 1000)
             if not nuked then
                 if not wrong then
@@ -1959,13 +2007,13 @@ botOnLeveling = function()
                     end
                     localInfo('Leveling')
                     harvest('leveling', world, door, idblockleveling)
-                    rechecking(world, doorWorld, idblockleveling, idblockleveling + 1, 'leveling')
+                    rechecking(world, door, idblockleveling, idblockleveling + 1, 'leveling')
                     if bot.level >= setminlvl then
                         loopingObj(world, door, idblockleveling, 'leveling')
                     end
-                    loopingObj(world, doorWorld, idblockleveling + 1, 'leveling')
+                    loopingObj(world, door, idblockleveling + 1, 'leveling')
                     while countFloating(112) > 0 and not ignoregems do
-                        loopingObj(world, doorWorld, 112, 'leveling')
+                        loopingObj(world, door, 112, 'leveling')
                     end
                 else
                     wrong = false
@@ -2208,8 +2256,16 @@ end
 
 if Information == 'Script Rotation made by Caramoy Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq' and scriptVersion == '0.5' then
     setAuth()
-    sleep(bot.index * sleeping)
     clientEnet()
+    sleep(bot.index * sleeping)
+    if linkbotinfo ~= 'x' then
+        createMessageID(linkbotinfo, 'Creating message ID for Bot - '..bot.index)
+        local readMsg = readFile('Bot Messages.txt')
+        local indexMsg = 1
+        for i = 1, indexMsg do
+            table.insert(msg, readMsg[math.floor((getBot().index - 1) * indexMsg + i)])
+        end
+    end
     mainScript()
 else
     botsActivityDesc('Script Rotation made by Caramoy Syndicate, Link Discord : https://discord.com/invite/fTTKW8vvuq, Reseller IDIOT !!')
