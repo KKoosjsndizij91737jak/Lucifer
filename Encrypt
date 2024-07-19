@@ -1170,33 +1170,33 @@ onEvent = function(w, id)
                     end
                 else
                     for y, pack in pairs(eventList) do
-                        if #bot:getPath(dropeventX + (customizable.variableEvents), dropeventY) > 0 then
-                            ::BACK::
-                            bot:findPath(dropeventX + (customizable.variableEvents), dropeventY)
-                            sleep(100)
-                            local count = 0
-                            reconnect(world, door, dropeventX + (customizable.variableEvents), dropeventY)
-                            if dropeventX + (customizable.variableEvents) >= 98 then
-                                dropeventY = dropeventY - 1
-                                customizable.variableEvents = 0
-                                goto BACK
-                            end
-                            while backpack(pack) > 0 do
-                                bot:setDirection(false)
-                                bot:drop(pack, 200)
-                                sleep(delaydrop * 1000)
+                        for _, tile in pairs(bot:getWorld():getTiles()) do
+                            if getTile(dropeventX + (customizable.variableEvents), dropeventY).fg == 0 then
+                                ::BACK::
+                                bot:findPath(dropeventX + (customizable.variableEvents), dropeventY)
+                                sleep(100)
+                                local count = 0
                                 reconnect(world, door, dropeventX + (customizable.variableEvents), dropeventY)
-                                count = count + 1
-                                if count >= 2 then
-                                    customizable.variableEvents = customizable.variableEvents + 1
+                                if dropeventX + (customizable.variableEvents) >= 98 then
+                                    dropeventY = dropeventY - 1
+                                    customizable.variableEvents = 0
                                     goto BACK
                                 end
+                                while backpack(pack) > 0 do
+                                    bot:setDirection(false)
+                                    bot:drop(pack, 200)
+                                    sleep(delaydrop * 1000)
+                                    reconnect(world, door, dropeventX + (customizable.variableEvents), dropeventY)
+                                    count = count + 1
+                                    if count >= 2 then
+                                        customizable.variableEvents = customizable.variableEvents + 1
+                                        goto BACK
+                                    end
+                                end
                             end
-                        else
-                            botsActivityDesc('Bots cant findpath, check ur drop event position')
-                        end
-                        if backpack(pack) == 0 then
-                            break
+                            if backpack(pack) == 0 then
+                                break
+                            end
                         end
                     end
                     sleep(100)
@@ -1253,32 +1253,33 @@ onPack = function(worlds, doors)
                     end
                 else
                     for y, pack in pairs(packList) do
-                        if #bot:getPath(droppackX + (customizable.variablePacks), droppackY) > 0 then
-                            ::BACK::
-                            bot:findPath(droppackX + (customizable.variablePacks), droppackY)
-                            sleep(100)
-                            local count = 0
-                            reconnect(world, door, droppackX + (customizable.variablePacks), droppackY)
-                            if droppackX + (customizable.variablePacks) >= 98 then
-                                droppackY = droppackY - 1
-                                customizable.variablePacks = 0
-                            end
-                            while backpack(pack) > 0 do
-                                bot:setDirection(false)
-                                bot:drop(pack, 200)
-                                sleep(delaydrop * 1000)
+                        for _, tile in pairs(bot:getWorld():getTiles()) do
+                            if getTile(droppackX + (customizable.variablePacks), droppackY).fg == 0 then
+                                ::BACK::
+                                bot:findPath(droppackX + (customizable.variablePacks), droppackY)
+                                sleep(100)
+                                local count = 0
                                 reconnect(world, door, droppackX + (customizable.variablePacks), droppackY)
-                                count = count + 1
-                                if count >= 2 then
-                                    customizable.variablePacks = customizable.variablePacks + 1
+                                if droppackX + (customizable.variablePacks) >= 98 then
+                                    droppackY = droppackY - 1
+                                    customizable.variablePacks = 0
                                     goto BACK
                                 end
+                                while backpack(pack) > 0 do
+                                    bot:setDirection(false)
+                                    bot:drop(pack, 200)
+                                    sleep(delaydrop * 1000)
+                                    reconnect(world, door, droppackX + (customizable.variablePacks), droppackY)
+                                    count = count + 1
+                                    if count >= 2 then
+                                        customizable.variablePacks = customizable.variablePacks + 1
+                                        goto BACK
+                                    end
+                                end
                             end
-                        else
-                            botsActivityDesc('Bots cant findpath, check ur drop pack position')
-                        end
-                        if backpack(pack) == 0 then
-                            break
+                            if backpack(pack) == 0 then
+                                break
+                            end
                         end
                     end
                     sleep(100)
@@ -1376,32 +1377,33 @@ onSeed = function(w, id, seedid)
                             botsActivityDesc('All seeds storage has reached limit, Script terminated.')
                         end
                     else
-                        if #bot:getPath(dropseedX + (customizable.variableSeeds), dropseedY) > 0 then
-                            ::BACK::
-                            bot:findPath(dropseedX + (customizable.variableSeeds), dropseedY)
-                            sleep(100)
-                            local count = 0
-                            reconnect(world, door, dropseedX + (customizable.variableSeeds), dropseedY)
-                            if dropseedX + (customizable.variableSeeds) >= 98 then
-                                dropseedY = dropseedY - 1
-                                customizable.variableSeeds = 0
-                            end
-                            while backpack(seedid) > 0 do
-                                bot:setDirection(false)
-                                bot:drop(seedid, 200)
-                                sleep(delaydrop * 1000)
+                        for _, tile in pairs(bot:getWorld():getTiles()) do
+                            if getTile(dropseedX + (customizable.variableSeeds), dropseedY).fg == 0 then
+                                ::BACK::
+                                bot:findPath(dropseedX + (customizable.variableSeeds), dropseedY)
+                                sleep(100)
+                                local count = 0
                                 reconnect(world, door, dropseedX + (customizable.variableSeeds), dropseedY)
-                                count = count + 1
-                                if count >= 2 then
-                                    customizable.variableSeeds = customizable.variableSeeds + 1
+                                if dropseedX + (customizable.variableSeeds) >= 98 then
+                                    dropseedY = dropseedY - 1
+                                    customizable.variableSeeds = 0
                                     goto BACK
+                                end
+                                while backpack(seedid) > 0 do
+                                    bot:setDirection(false)
+                                    bot:drop(seedid, 200)
+                                    sleep(delaydrop * 1000)
+                                    reconnect(world, door, dropseedX + (customizable.variableSeeds), dropseedY)
+                                    count = count + 1
+                                    if count >= 2 then
+                                        customizable.variableSeeds = customizable.variableSeeds + 1
+                                        goto BACK
+                                    end
                                 end
                             end
                             if backpack(seedid) == 0 then
                                 break
                             end
-                        else
-                            botsActivityDesc('Bots cant findpath, check ur drop seed position')
                         end
                         sleep(100)
                         break
